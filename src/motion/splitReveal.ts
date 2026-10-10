@@ -4,6 +4,8 @@ type Options = {
   delay?: number
   stagger?: number
   from?: "start" | "center" | "end" | "random"
+  /** Play when this element scrolls into view instead of immediately. */
+  trigger?: Element | string
 }
 
 /**
@@ -33,5 +35,6 @@ export function splitReveal(target: gsap.TweenTarget, opts: Options = {}) {
     delay: opts.delay ?? 0,
     stagger: { each: opts.stagger ?? 0.035, from: opts.from ?? "start" },
     clearProps: "filter,willChange",
+    scrollTrigger: opts.trigger ? { trigger: opts.trigger, start: "top 82%" } : undefined,
   })
 }

@@ -1,5 +1,5 @@
 // Ashima simplex 3D (MIT), trimmed.
-const noise = /* glsl */ `
+export const noise = /* glsl */ `
 vec4 permute(vec4 x){ return mod(((x*34.0)+1.0)*x, 289.0); }
 vec4 taylorInvSqrt(vec4 r){ return 1.79284291400159 - 0.85373472095314 * r; }
 float snoise(vec3 v){
@@ -52,6 +52,7 @@ vec3 flow(vec3 p){
 export const vertexShader = /* glsl */ `
 uniform float uTime;
 uniform float uForm;
+uniform float uMorph;
 uniform float uMotion;
 uniform float uSize;
 uniform float uPixelRatio;
@@ -63,24 +64,56 @@ uniform float uRadius;
 attribute vec3 aScatter;
 attribute vec4 aRandom;
 attribute float aBright;
+attribute vec3 aGraph;
+attribute vec2 aGraphMeta;
+attribute vec3 aCube;
+attribute float aCubeBright;
 
 varying float vBright;
 varying float vAlpha;
 varying float vHeat;
+varying float vPulse;
 
 ${noise}
 
+const float PI = 3.14159265;
+
+// Per-point staggered progress through one unit of a 0–1 segment.
+float stage(float m, float delay) {
+  float f = clamp((m - delay) / 0.6, 0.0, 1.0);
+  return f * f * (3.0 - 2.0 * f);
+}
+
+vec3 spinCube(vec3 p, float t) {
+  float a = t * 0.22;
+  float c = cos(a), s = sin(a);
+  p = vec3(c * p.x + s * p.z, p.y, -s * p.x + c * p.z);
+  float b = 0.42;
+  float cb = cos(b), sb = sin(b);
+  return vec3(p.x, cb * p.y - sb * p.z, sb * p.y + cb * p.z);
+}
+
 void main() {
-  // Staggered formation: each point lands on its own schedule.
+  float t = uTime;
+
+  // Load-in: the face condenses out of the nebula.
   float delay = aRandom.x * 0.45;
   float f = clamp((uForm - delay) / 0.55, 0.0, 1.0);
   f = 1.0 - pow(1.0 - f, 4.0);
 
-  vec3 p = mix(aScatter, position, f);
+  // Scroll story: face → graph (0–1) → cube (1–2) → nebula (2–3).
+  float d2 = aRandom.x * 0.4;
+  float f1 = stage(uMorph, d2);
+  float f2 = stage(uMorph - 1.0, d2);
+  float f3 = stage(uMorph - 2.0, d2);
 
-  // Idle life: slow noise drift + per-point shimmer, stronger mid-flight.
-  float t = uTime;
-  float loose = 0.025 + (1.0 - f) * 0.4;
+  vec3 cube = spinCube(aCube, t);
+  vec3 target = mix(mix(position, aGraph, f1), cube, f2);
+  vec3 p = mix(aScatter, target, f * (1.0 - f3));
+
+  // Particles flow between shapes instead of sliding in straight lines.
+  float travel = sin(f1 * PI) + sin(f2 * PI) + sin(f3 * PI) * 0.6;
+  float loose = 0.025 + (1.0 - f) * 0.4 + travel * 0.32;
   p += flow(p * 0.7 + vec3(0.0, 0.0, t * 0.08)) * loose * uMotion;
 
   // Cursor repulsion in the XY plane, with a lift toward the camera.
@@ -95,14 +128,23 @@ void main() {
   vec4 mv = modelViewMatrix * vec4(p, 1.0);
   gl_Position = projectionMatrix * mv;
 
-  float size = uSize * (0.55 + aRandom.y * 0.9) * (0.65 + aBright * 0.7) * (1.0 + infl * 0.8);
+  // Signal travels along graph edges, layer to layer.
+  float onEdge = step(0.0, aGraphMeta.x);
+  float wave = fract(aGraphMeta.x - t * 0.45 + floor(aRandom.z * 3.0) / 3.0);
+  float pulse = onEdge * smoothstep(0.1, 0.0, wave) * uMotion;
+  vPulse = pulse * f1 * (1.0 - f2);
+
+  float bright = mix(mix(aBright, aGraphMeta.y, f1), aCubeBright, f2);
+  bright = max(bright, vPulse);
+
+  float size = uSize * (0.55 + aRandom.y * 0.9) * (0.65 + bright * 0.7) * (1.0 + infl * 0.8 + vPulse * 0.6);
   gl_PointSize = size * uPixelRatio / -mv.z;
 
-  vBright = aBright;
+  vBright = bright;
   vHeat = infl;
-  // Back of the head and mid-flight points recede.
-  float depth = smoothstep(-0.9, 0.7, position.z);
-  vAlpha = mix(0.25, 1.0, f) * mix(0.35, 1.0, depth) * uFade;
+  // Far side of each shape and mid-flight points recede.
+  float depth = smoothstep(-0.9, 0.7, target.z);
+  vAlpha = mix(0.25, 1.0, f) * mix(0.35, 1.0, depth) * mix(1.0, 0.55, f3) * uFade;
 }
 `
 
@@ -114,12 +156,13 @@ uniform vec3 uSignal;
 varying float vBright;
 varying float vAlpha;
 varying float vHeat;
+varying float vPulse;
 
 void main() {
   float d = length(gl_PointCoord - 0.5);
   float a = smoothstep(0.5, 0.05, d);
   vec3 col = mix(uDeep, uInk, smoothstep(0.1, 0.8, vBright));
-  col = mix(col, uSignal, smoothstep(0.05, 0.7, vHeat));
+  col = mix(col, uSignal, smoothstep(0.05, 0.7, max(vHeat, vPulse)));
   gl_FragColor = vec4(col, a * a * vAlpha * 0.85);
 }
 `

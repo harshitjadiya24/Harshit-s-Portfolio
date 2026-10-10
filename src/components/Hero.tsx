@@ -2,9 +2,8 @@ import { useGSAP } from "@gsap/react"
 import { useLenis } from "lenis/react"
 import { useEffect, useRef, useState } from "react"
 import { profile } from "../data"
-import { expoOut, gsap, reducedMotion, ScrollTrigger } from "../motion/eases"
+import { expoOut, gsap, reducedMotion } from "../motion/eases"
 import { splitReveal } from "../motion/splitReveal"
-import { sceneState } from "../scene/sceneState"
 import { MagneticButton } from "./MagneticButton"
 
 function useNagpurTime() {
@@ -46,14 +45,6 @@ export function Hero({ ready }: { ready: boolean }) {
         })
       }
 
-      ScrollTrigger.create({
-        trigger: root.current,
-        start: "top top",
-        end: "bottom top",
-        onUpdate: (self) => {
-          sceneState.heroExit = self.progress
-        },
-      })
       // Type drifts apart as the hero leaves: line one left, line two right.
       gsap.to(".hero-l1", {
         xPercent: -8,

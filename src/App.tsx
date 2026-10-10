@@ -1,3 +1,4 @@
+import { useGSAP } from "@gsap/react"
 import { ReactLenis, useLenis, type LenisRef } from "lenis/react"
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react"
 import { Contact } from "./components/Contact"
@@ -9,6 +10,7 @@ import { Philosophy } from "./components/Philosophy"
 import { Skills } from "./components/Skills"
 import { Work } from "./components/Work"
 import { expoOut, gsap, reducedMotion, ScrollTrigger } from "./motion/eases"
+import { scrollStory } from "./scene/scrollStory"
 import { sceneState } from "./scene/sceneState"
 
 const Stage = lazy(() => import("./scene/Stage").then((m) => ({ default: m.Stage })))
@@ -37,6 +39,7 @@ function Shell() {
   const lenisRef = useRef<LenisRef>(null)
   const [ready, setReady] = useState(false)
   useLenisOnGsapTicker(lenisRef)
+  useGSAP(scrollStory)
 
   const reveal = useCallback(() => {
     setReady(true)

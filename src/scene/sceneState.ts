@@ -5,10 +5,16 @@
 export const sceneState = {
   /** 0 = scattered nebula, 1 = formed face. Tweened once the loader lifts. */
   form: 0,
-  /** 0 → 1 as the hero scrolls out of view. */
-  heroExit: 0,
-  /** Phase 2: 0 face → 1 neural graph → 2 data cube. */
+  /** Scroll story: 0 face → 1 neural graph → 2 data cube → 3 back to nebula. */
   morph: 0,
+  /** Horizontal anchor as a fraction of viewport width (narrow screens damp it). */
+  x: 0.2,
+  /** Vertical anchor as a fraction of viewport height. */
+  y: 0,
+  /** Multiplier on the responsive base scale. */
+  scale: 1,
+  /** Overall opacity, so the field can sit behind text. */
+  fade: 1,
 }
 
 export const palette = {
@@ -28,3 +34,12 @@ export const quality = {
   points: coarse || lowCore ? 15_000 : 40_000,
   maxDpr: coarse ? 1.5 : 1.75,
 }
+
+/** WebGL2 or nothing: without it the Stage stays unmounted and the DOM stands alone. */
+export const hasWebGL = (() => {
+  try {
+    return typeof document !== "undefined" && !!document.createElement("canvas").getContext("webgl2")
+  } catch {
+    return false
+  }
+})()

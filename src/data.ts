@@ -14,9 +14,24 @@ export const profile = {
 export const philosophy =
   "Accuracy without *taste* is a spreadsheet. I build models that move pixels, products, and people — and I obsess over the 200ms that make an interface feel *alive.*"
 
-export const projects = [
+/**
+ * Work rows. Add `poster: "/work/<slug>.jpg"` and/or `video: "/work/<slug>.mp4"`
+ * (files in public/work/) to replace the generated poster and contour preview.
+ */
+export const projects: {
+  index: string
+  slug: string
+  title: string
+  year: string
+  tags: string[]
+  description: string
+  accent: string
+  poster?: string
+  video?: string
+}[] = [
   {
     index: "01",
+    slug: "moody-player",
     title: "Moody Player",
     year: "2025",
     tags: ["Computer Vision", "face-api.js", "React", "MongoDB"],
@@ -26,6 +41,7 @@ export const projects = [
   },
   {
     index: "02",
+    slug: "neural-chat",
     title: "Neural Chat",
     year: "2025",
     tags: ["Realtime", "Socket.IO", "LLM UI", "Vite"],
@@ -35,6 +51,7 @@ export const projects = [
   },
   {
     index: "03",
+    slug: "fraud-sentinel",
     title: "Fraud Sentinel",
     year: "2025",
     tags: ["ML", "Python", "Classification", "Finance"],
@@ -44,6 +61,7 @@ export const projects = [
   },
   {
     index: "04",
+    slug: "mas-platform",
     title: "MAS Platform",
     year: "2025",
     tags: ["Multi-agent", "Backend", "APIs"],
@@ -53,6 +71,7 @@ export const projects = [
   },
   {
     index: "05",
+    slug: "hackathon-lab",
     title: "Hackathon Lab",
     year: "2025",
     tags: ["Next.js", "Speed", "Product"],
@@ -62,19 +81,41 @@ export const projects = [
   },
 ]
 
+/**
+ * Nodes of the Skills physics graph. `icon` is a simple-icons export name
+ * (see src/components/skills/icons.ts); each skill links to its group hub.
+ */
 export const skills = [
-  { name: "Python", group: "Core" },
-  { name: "TypeScript", group: "Core" },
-  { name: "PyTorch", group: "AI" },
-  { name: "Computer Vision", group: "AI" },
-  { name: "LLMs", group: "AI" },
-  { name: "React", group: "Product" },
-  { name: "Three.js", group: "Product" },
-  { name: "Node.js", group: "Product" },
-  { name: "MongoDB", group: "Systems" },
-  { name: "Socket.IO", group: "Systems" },
-  { name: "C / DSA", group: "Systems" },
-  { name: "UI Motion", group: "Craft" },
+  { name: "Python", group: "Core", icon: "python" },
+  { name: "TypeScript", group: "Core", icon: "typescript" },
+  { name: "C / DSA", group: "Core", icon: "c" },
+  { name: "PyTorch", group: "AI", icon: "pytorch" },
+  { name: "CUDA", group: "AI", icon: "nvidia" },
+  { name: "LLMs", group: "AI", icon: "huggingface" },
+  { name: "Computer Vision", group: "AI", icon: "opencv" },
+  { name: "React", group: "Product", icon: "react" },
+  { name: "Three.js", group: "Product", icon: "three" },
+  { name: "UI Motion", group: "Product", icon: "gsap" },
+  { name: "Node.js", group: "Systems", icon: "node" },
+  { name: "MongoDB", group: "Systems", icon: "mongodb" },
+  { name: "Socket.IO", group: "Systems", icon: "socketio" },
+] as const
+
+export type SkillName = (typeof skills)[number]["name"]
+
+/** Cross-group edges: tools that actually get used together. */
+export const skillLinks: [SkillName, SkillName][] = [
+  ["Python", "PyTorch"],
+  ["PyTorch", "CUDA"],
+  ["PyTorch", "Computer Vision"],
+  ["TypeScript", "React"],
+  ["React", "Three.js"],
+  ["Three.js", "UI Motion"],
+  ["TypeScript", "Node.js"],
+  ["Node.js", "Socket.IO"],
+  ["Node.js", "MongoDB"],
+  ["LLMs", "Socket.IO"],
+  ["C / DSA", "CUDA"],
 ]
 
 export const story = [

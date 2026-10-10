@@ -16,6 +16,7 @@ import { reducedMotion } from "../../motion/eases"
 import { palette, quality, sceneState } from "../sceneState"
 import type { FaceCloud } from "./cloud"
 import { fragmentShader, vertexShader } from "./shaders"
+import { buildMorphTargets } from "./targets"
 
 function buildGeometry(cloud: FaceCloud) {
   const { count } = cloud
@@ -37,6 +38,11 @@ function buildGeometry(cloud: FaceCloud) {
   g.setAttribute("aScatter", new BufferAttribute(scatter, 3))
   g.setAttribute("aRandom", new BufferAttribute(random, 4))
   g.setAttribute("aBright", new BufferAttribute(cloud.brightness.subarray(0, count), 1))
+  const morph = buildMorphTargets(count)
+  g.setAttribute("aGraph", new BufferAttribute(morph.graph, 3))
+  g.setAttribute("aGraphMeta", new BufferAttribute(morph.graphMeta, 2))
+  g.setAttribute("aCube", new BufferAttribute(morph.cube, 3))
+  g.setAttribute("aCubeBright", new BufferAttribute(morph.cubeBright, 1))
   return g
 }
 
@@ -59,10 +65,13 @@ export function ParticleAvatar({ cloud }: { cloud: FaceCloud }) {
         fragmentShader,
         transparent: true,
         depthWrite: false,
+        // Drawn over the project planes so the cube glows across the Work section.
+        depthTest: false,
         blending: AdditiveBlending,
         uniforms: {
           uTime: { value: 0 },
           uForm: { value: 0 },
+          uMorph: { value: 0 },
           uMotion: { value: reducedMotion() ? 0 : 1 },
           uSize: { value: 15 * Math.sqrt(40_000 / quality.points) * 0.85 },
           uPixelRatio: { value: 1 },
@@ -96,16 +105,15 @@ export function ParticleAvatar({ cloud }: { cloud: FaceCloud }) {
     const u = points.current.material.uniforms
     const t = state.clock.elapsedTime
 
-    // Layout: right of centre on wide screens, behind the type on narrow ones.
+    // Layout comes from the scroll story; narrow screens keep the field centred.
     const wide = viewport.aspect > 1.05
-    const scale = wide ? viewport.height / 3.3 : Math.min(viewport.width / 2.2, viewport.height / 3.6)
-    const exit = sceneState.heroExit
-    const tx = wide ? viewport.width * 0.2 : 0
-    const ty = (wide ? -0.05 : viewport.height * 0.06) + exit * viewport.height * 0.35
+    const base = wide ? viewport.height / 3.3 : Math.min(viewport.width / 2.2, viewport.height / 3.6)
+    const tx = sceneState.x * viewport.width * (wide ? 1 : 0.15)
+    const ty = (sceneState.y + (wide ? -0.01 : 0.06)) * viewport.height
     const ease = 1 - Math.exp(-dt * 4)
     g.position.x = MathUtils.lerp(g.position.x, tx, ease)
     g.position.y = MathUtils.lerp(g.position.y, ty, ease)
-    g.scale.setScalar(scale)
+    g.scale.setScalar(base * sceneState.scale)
 
     // Head follows the pointer a little: attention, not a puppet.
     const p = state.pointer
@@ -129,7 +137,9 @@ export function ParticleAvatar({ cloud }: { cloud: FaceCloud }) {
 
     u.uTime.value = t
     u.uForm.value = sceneState.form
-    u.uFade.value = (wide ? 1 : 0.7) * (1 - exit * 0.8)
+    u.uMorph.value = sceneState.morph
+    // Narrow screens: the field sits behind full-width type, so it steps back further.
+    u.uFade.value = (wide ? 1 : 0.7 - Math.max(0, sceneState.morph - 1) * 0.25) * sceneState.fade
     u.uPixelRatio.value = dpr
   })
 
