@@ -19,7 +19,7 @@
   font-display: swap;
 }
 
-/* Midnight navy world. Hex mirrors live in src/scene/palette.ts for WebGL. */
+/* Midnight navy world. Hex mirrors live in `palette` in src/scene/sceneState.ts for WebGL. */
 @theme {
   --color-bg: oklch(0.14 0.035 265);
   --color-bg-2: oklch(0.18 0.04 265);
