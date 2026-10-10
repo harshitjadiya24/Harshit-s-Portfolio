@@ -14,10 +14,13 @@ function LenisGsapBridge() {
 import { About } from "./components/About"
 import { Contact, Footer } from "./components/Contact"
 import { Cursor } from "./components/Cursor"
-import { FaceStudio } from "./components/FaceStudio"
+import { Experience } from "./components/Experience"
 import { Hero } from "./components/Hero"
 import { Loader } from "./components/Loader"
 import { Nav } from "./components/Nav"
+import { Philosophy } from "./components/Philosophy"
+import { Resume } from "./components/Resume"
+import { Skills } from "./components/Skills"
 import { Work } from "./components/Work"
 import { FaceProvider } from "./face/FaceContext"
 
@@ -43,7 +46,10 @@ export default function App() {
         <main className={`relative z-10 transition-opacity duration-700 ${ready ? "opacity-100" : "opacity-0"}`}>
           <Hero />
           <Work />
-          <FaceStudio />
+          <Skills />
+          <Experience />
+          <Philosophy />
+          <Resume />
           <About />
           <Contact />
           <Footer />

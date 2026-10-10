@@ -5,6 +5,7 @@ export const profile = {
   location: "Nagpur, India",
   email: "bt24eci044@iiitn.ac.in",
   linkedin: "https://www.linkedin.com/in/harshit-jadiya-82b27127b",
+  github: "https://github.com/harshitjadiya24",
   tagline:
     "I build intelligent systems that look expensive, feel human, and ship.",
 }
@@ -88,4 +89,46 @@ export const story = [
     t: "Craft is a model too",
     d: "Accuracy without taste is a spreadsheet. I care about latency, typography, and the 200ms that make an interface feel alive.",
   },
+]
+
+export const experience = [
+  {
+    period: "2024 – Present",
+    title: "B.Tech ECE",
+    org: "IIIT Nagpur",
+    description:
+      "Pursuing Electronics & Communication Engineering with a focus on AI/ML, computer vision, and real-time systems.",
+    accent: "#d8ff4a",
+  },
+  {
+    period: "2025",
+    title: "AI Project Lead",
+    org: "Self-directed",
+    description:
+      "Built Moody Player, Neural Chat, and Fraud Sentinel — shipping end-to-end from model training to polished UI.",
+    accent: "#6ee7ff",
+  },
+  {
+    period: "2025",
+    title: "Hackathon Builder",
+    org: "Multiple Events",
+    description:
+      "Designed and shipped full-stack products under 24–48 hr pressure. Next.js frontends, Python backends, live demos.",
+    accent: "#c77dff",
+  },
+  {
+    period: "2025",
+    title: "Multi-Agent Systems",
+    org: "Research Project",
+    description:
+      "Architected a backend platform for orchestrating specialized AI agents — moving beyond monolithic prompt engineering.",
+    accent: "#ff6b8a",
+  },
+]
+
+export const stats = [
+  { label: "Projects Shipped", value: 5 },
+  { label: "Tech Stack", value: 12 },
+  { label: "Hackathons", value: 3 },
+  { label: "Models Trained", value: 8 },
 ]

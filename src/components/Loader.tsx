@@ -21,7 +21,7 @@ export function Loader({ onDone }: { onDone: () => void }) {
     <div className="fixed inset-0 z-[90] flex flex-col justify-between bg-[#07070c] px-6 py-8 text-[#f4f1ea] md:px-10">
       <div className="flex items-center justify-between text-[11px] tracking-[0.28em] uppercase mono text-[#9a9588]">
         <span>Harshit Jadiya</span>
-        <span>Initializing face rig</span>
+        <span>Loading portfolio</span>
       </div>
       <div>
         <p className="display text-[18vw] leading-none md:text-[9rem]">

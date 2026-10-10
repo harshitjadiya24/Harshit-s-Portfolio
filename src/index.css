@@ -158,3 +158,37 @@ button {
     animation: none;
   }
 }
+
+/* Philosophy cards */
+.phil-card {
+  transform-style: preserve-3d;
+  transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.3s;
+}
+
+/* Timeline dot pulse */
+.timeline-item .absolute {
+  transition: box-shadow 0.4s ease;
+}
+
+.timeline-item:hover .absolute {
+  box-shadow: 0 0 20px rgba(216, 255, 74, 0.3);
+}
+
+/* Stat card hover */
+.stat-card {
+  transition: border-color 0.3s, transform 0.3s ease;
+}
+
+.stat-card:hover {
+  border-color: rgba(216, 255, 74, 0.25);
+  transform: translateY(-4px);
+}
+
+/* Skill pill glow */
+.skill-pill {
+  transition: background 0.3s, border-color 0.3s, transform 0.2s ease;
+}
+
+.skill-pill:hover {
+  transform: translateY(-2px);
+}
