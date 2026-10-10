@@ -1,61 +1,91 @@
 @import "tailwindcss";
 
-:root {
-  --bg: #07070c;
-  --bg-2: #0e0e16;
-  --ink: #f4f1ea;
-  --muted: #9a9588;
-  --lime: #d8ff4a;
-  --orchid: #c77dff;
-  --cyan: #6ee7ff;
-  --coral: #ff6b8a;
-  --gold: #e7cba0;
-  --line: rgba(244, 241, 234, 0.12);
-  --sans: "Syne", system-ui, sans-serif;
-  --serif: "Instrument Serif", Georgia, serif;
-  --mono: "IBM Plex Mono", ui-monospace, monospace;
+@font-face {
+  font-family: "Clash Display";
+  src: url("/fonts/clash-display-500.woff2") format("woff2");
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Clash Display";
+  src: url("/fonts/clash-display-600.woff2") format("woff2");
+  font-weight: 600;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Clash Display";
+  src: url("/fonts/clash-display-700.woff2") format("woff2");
+  font-weight: 700;
+  font-display: swap;
 }
 
-* {
-  box-sizing: border-box;
+/* Midnight navy world. Hex mirrors live in src/scene/palette.ts for WebGL. */
+@theme {
+  --color-bg: oklch(0.14 0.035 265);
+  --color-bg-2: oklch(0.18 0.04 265);
+  --color-deep: oklch(0.42 0.09 262);
+  --color-ink: oklch(0.96 0.012 250);
+  --color-ink-dim: oklch(0.72 0.04 255);
+  --color-ink-ghost: oklch(0.32 0.05 262);
+  --color-signal: oklch(0.88 0.19 125);
+  --color-pulse: oklch(0.72 0.17 300);
+  --color-line: oklch(0.96 0.012 250 / 0.12);
+
+  --font-display: "Clash Display", "Clash Display Fallback", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-quint: cubic-bezier(0.83, 0, 0.17, 1);
 }
 
-html,
-body,
-#root {
-  min-height: 100%;
+/* Metric-matched fallback keeps the giant type from shifting when Clash swaps in. */
+@font-face {
+  font-family: "Clash Display Fallback";
+  src: local("Helvetica Neue"), local("Arial");
+  size-adjust: 96%;
+  ascent-override: 98%;
+  descent-override: 24%;
 }
 
 html {
-  background: var(--bg);
-  color: var(--ink);
+  background: var(--color-bg);
+  color: var(--color-ink);
+  color-scheme: dark;
+  scrollbar-color: var(--color-deep) var(--color-bg);
+  scrollbar-width: thin;
+}
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis:not(.lenis-autoToggle).lenis-stopped {
+  overflow: clip;
 }
 
 body {
   margin: 0;
-  font-family: var(--sans);
+  font-family: var(--font-display);
+  font-weight: 500;
   background:
-    radial-gradient(1200px 700px at 80% -10%, rgba(199, 125, 255, 0.16), transparent 55%),
-    radial-gradient(900px 600px at -10% 20%, rgba(216, 255, 74, 0.08), transparent 50%),
-    radial-gradient(800px 500px at 50% 120%, rgba(110, 231, 255, 0.08), transparent 50%),
-    var(--bg);
-  overflow-x: hidden;
-  cursor: none;
+    radial-gradient(90vw 70vh at 78% 30%, oklch(0.24 0.07 262 / 0.55), transparent 70%),
+    var(--color-bg);
+  overflow-x: clip;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-#root {
-  width: 100%;
-  max-width: none;
-  margin: 0;
-  text-align: left;
-  border: 0;
-  min-height: 100svh;
-  display: block;
+@media (hover: hover) and (pointer: fine) {
+  body,
+  a,
+  button {
+    cursor: none;
+  }
 }
 
 ::selection {
-  background: var(--lime);
-  color: #111;
+  background: var(--color-signal);
+  color: var(--color-bg);
 }
 
 a {
@@ -63,132 +93,33 @@ a {
   text-decoration: none;
 }
 
-button {
-  font-family: inherit;
+:focus-visible {
+  outline: 2px solid var(--color-signal);
+  outline-offset: 4px;
+  border-radius: 2px;
 }
 
-.grain {
-  pointer-events: none;
-  position: fixed;
-  inset: 0;
-  z-index: 40;
-  opacity: 0.09;
-  mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+.tabular {
+  font-variant-numeric: tabular-nums;
 }
 
-.display {
-  font-family: var(--serif);
-  font-weight: 400;
-  letter-spacing: -0.04em;
-  line-height: 0.9;
+/* SplitText output: chars need their own layer for 3D + blur. */
+.split-char {
+  will-change: transform, filter, opacity;
+  backface-visibility: hidden;
 }
 
-.mono {
-  font-family: var(--mono);
+/* Scrub-fill words: GSAP tweens --fill from 0 to 1. */
+.fill-word {
+  --fill: 0;
+  color: color-mix(in oklch, var(--color-ink-ghost), var(--word-to, var(--color-ink)) calc(var(--fill) * 100%));
 }
-
-.stroke-title {
-  -webkit-text-stroke: 1px rgba(244, 241, 234, 0.28);
-  color: transparent;
-}
-
-.glass {
-  background: rgba(14, 14, 22, 0.55);
-  border: 1px solid var(--line);
-  backdrop-filter: blur(18px);
-}
-
-.magnetic {
-  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
-.project-card {
-  transform-style: preserve-3d;
-  transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.3s;
-}
-
-.marquee {
-  animation: marquee 28s linear infinite;
-}
-
-@keyframes marquee {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
-}
-
-@keyframes pulse-ring {
-  0% {
-    transform: scale(0.85);
-    opacity: 0.7;
-  }
-  100% {
-    transform: scale(1.45);
-    opacity: 0;
-  }
-}
-
-.cursor-dot,
-.cursor-ring {
-  pointer-events: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 80;
-  border-radius: 999px;
-  mix-blend-mode: difference;
-}
-
-@media (hover: none), (pointer: coarse) {
-  body {
-    cursor: auto;
-  }
-  .cursor-dot,
-  .cursor-ring {
-    display: none;
-  }
+.fill-word[data-kw] {
+  --word-to: var(--color-signal);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .marquee {
-    animation: none;
+  .fill-word {
+    --fill: 1;
   }
-}
-
-/* Philosophy cards */
-.phil-card {
-  transform-style: preserve-3d;
-  transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.3s;
-}
-
-/* Timeline dot pulse */
-.timeline-item .absolute {
-  transition: box-shadow 0.4s ease;
-}
-
-.timeline-item:hover .absolute {
-  box-shadow: 0 0 20px rgba(216, 255, 74, 0.3);
-}
-
-/* Stat card hover */
-.stat-card {
-  transition: border-color 0.3s, transform 0.3s ease;
-}
-
-.stat-card:hover {
-  border-color: rgba(216, 255, 74, 0.25);
-  transform: translateY(-4px);
-}
-
-/* Skill pill glow */
-.skill-pill {
-  transition: background 0.3s, border-color 0.3s, transform 0.2s ease;
-}
-
-.skill-pill:hover {
-  transform: translateY(-2px);
 }

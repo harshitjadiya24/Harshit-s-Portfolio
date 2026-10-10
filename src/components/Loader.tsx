@@ -1,43 +1,68 @@
-import { useEffect, useState } from "react"
+import { useGSAP } from "@gsap/react"
+import { useRef, useState } from "react"
+import { gsap, reducedMotion } from "../motion/eases"
+import { loadFaceCloud } from "../scene/avatar/cloud"
+import { quality } from "../scene/sceneState"
 
-export function Loader({ onDone }: { onDone: () => void }) {
-  const [p, setP] = useState(0)
+/**
+ * Counter is honest-ish: it eases toward 80 on its own and only reaches 100
+ * once fonts and the point cloud are actually ready. Then the curtain lifts.
+ */
+export function Loader({ onReveal }: { onReveal: () => void }) {
+  const root = useRef<HTMLDivElement>(null)
+  const num = useRef<HTMLSpanElement>(null)
+  const [gone, setGone] = useState(false)
 
-  useEffect(() => {
-    let n = 0
-    const id = window.setInterval(() => {
-      n += Math.random() * 14 + 6
-      if (n >= 100) {
-        n = 100
-        window.clearInterval(id)
-        window.setTimeout(onDone, 420)
+  useGSAP(
+    () => {
+      const counter = { v: 0 }
+      const render = () => {
+        if (num.current) num.current.textContent = String(Math.round(counter.v)).padStart(3, "0")
       }
-      setP(Math.min(100, Math.floor(n)))
-    }, 90)
-    return () => window.clearInterval(id)
-  }, [onDone])
+      const crawl = gsap.to(counter, { v: 80, duration: 2.4, ease: "expo", onUpdate: render })
+      let cancelled = false
+
+      Promise.all([document.fonts.ready, loadFaceCloud()]).then(() => {
+        if (cancelled) return
+        crawl.kill()
+        gsap
+          .timeline()
+          .to(counter, { v: 100, duration: 0.6, ease: "expo", onUpdate: render })
+          .add(onReveal, "+=0.1")
+          .to(root.current, {
+            clipPath: "inset(0% 0% 100% 0%)",
+            duration: reducedMotion() ? 0.01 : 1.2,
+            ease: "quint",
+            onComplete: () => setGone(true),
+          }, "<")
+      })
+      return () => {
+        cancelled = true
+      }
+    },
+    { scope: root },
+  )
+
+  if (gone) return null
 
   return (
-    <div className="fixed inset-0 z-[90] flex flex-col justify-between bg-[#07070c] px-6 py-8 text-[#f4f1ea] md:px-10">
-      <div className="flex items-center justify-between text-[11px] tracking-[0.28em] uppercase mono text-[#9a9588]">
+    <div
+      ref={root}
+      className="fixed inset-0 z-[90] flex flex-col justify-between bg-bg px-4 py-5 md:px-10 md:py-8"
+      style={{ clipPath: "inset(0% 0% 0% 0%)" }}
+      role="status"
+      aria-label="Loading"
+    >
+      <div className="flex justify-between font-mono text-[11px] uppercase tracking-[0.2em] text-ink-dim">
         <span>Harshit Jadiya</span>
-        <span>Loading portfolio</span>
+        <span className="tabular">Sampling {quality.points.toLocaleString("en-US")} points</span>
       </div>
-      <div>
-        <p className="display text-[18vw] leading-none md:text-[9rem]">
-          {String(p).padStart(3, "0")}
-        </p>
-        <div className="mt-4 h-[2px] w-full bg-white/10">
-          <div
-            className="h-full bg-[#d8ff4a] transition-[width] duration-150"
-            style={{ width: `${p}%` }}
-          />
-        </div>
-      </div>
-      <p className="max-w-sm text-sm text-[#9a9588]">
-        Loading a 3D portrait, scroll choreography, and a slightly too-confident
-        color palette.
-      </p>
+      <span
+        ref={num}
+        className="tabular font-display text-[clamp(6rem,30vw,22rem)] font-semibold leading-[0.8] tracking-[-0.04em] text-ink"
+      >
+        000
+      </span>
     </div>
   )
 }

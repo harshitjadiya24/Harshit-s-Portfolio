@@ -1,65 +1,115 @@
 import { useGSAP } from "@gsap/react"
-import gsap from "gsap"
-import { ScrollTrigger } from "gsap/ScrollTrigger"
-import { useRef } from "react"
+import { useLenis } from "lenis/react"
+import { useEffect, useRef, useState } from "react"
 import { profile } from "../data"
-import { useFace } from "../face/FaceContext"
+import { expoOut, gsap, reducedMotion, ScrollTrigger } from "../motion/eases"
+import { splitReveal } from "../motion/splitReveal"
+import { sceneState } from "../scene/sceneState"
+import { MagneticButton } from "./MagneticButton"
 
-gsap.registerPlugin(ScrollTrigger)
+function useNagpurTime() {
+  const [now, setNow] = useState("")
+  useEffect(() => {
+    const fmt = new Intl.DateTimeFormat("en-GB", {
+      timeZone: "Asia/Kolkata",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    })
+    const tick = () => setNow(fmt.format(new Date()))
+    tick()
+    const id = window.setInterval(tick, 1000)
+    return () => window.clearInterval(id)
+  }, [])
+  return now
+}
 
-export function Hero() {
+export function Hero({ ready }: { ready: boolean }) {
   const root = useRef<HTMLElement>(null)
-  const { setExpression } = useFace()
+  const lenis = useLenis()
+  const time = useNagpurTime()
 
   useGSAP(
     () => {
-      gsap.from(".hero-line", {
-        y: 80,
-        opacity: 0,
-        duration: 1.15,
-        stagger: 0.12,
-        ease: "power4.out",
-        delay: 0.1,
+      if (!ready) return
+      splitReveal(".hero-l1", { delay: 0.15 })
+      splitReveal(".hero-l2", { delay: 0.45, from: "end" })
+      if (!reducedMotion()) {
+        gsap.from(".hero-meta", {
+          opacity: 0,
+          y: 16,
+          filter: "blur(8px)",
+          duration: 1.2,
+          ease: "expo",
+          stagger: 0.08,
+          delay: 1.1,
+        })
+      }
+
+      ScrollTrigger.create({
+        trigger: root.current,
+        start: "top top",
+        end: "bottom top",
+        onUpdate: (self) => {
+          sceneState.heroExit = self.progress
+        },
       })
-      gsap.from(".hero-meta", {
-        opacity: 0,
-        y: 20,
-        duration: 0.9,
-        delay: 0.55,
+      // Type drifts apart as the hero leaves: line one left, line two right.
+      gsap.to(".hero-l1", {
+        xPercent: -8,
+        ease: "none",
+        scrollTrigger: { trigger: root.current, start: "top top", end: "bottom top", scrub: true },
+      })
+      gsap.to(".hero-l2", {
+        xPercent: 10,
+        ease: "none",
+        scrollTrigger: { trigger: root.current, start: "top top", end: "bottom top", scrub: true },
       })
     },
-    { scope: root },
+    { scope: root, dependencies: [ready] },
   )
 
   return (
     <section
-      id="top"
+      id="hero"
       ref={root}
-      className="relative z-10 flex min-h-[100svh] flex-col justify-end px-5 pb-16 pt-28 md:px-10 md:pb-20"
-      onMouseEnter={() => setExpression("smile")}
+      className="relative flex h-[100svh] min-h-[560px] flex-col justify-end overflow-hidden px-4 pb-6 md:px-10 md:pb-8"
     >
-      <p className="hero-meta mono mb-8 max-w-md text-[11px] tracking-[0.28em] text-[#9a9588] uppercase">
-        {profile.school} · {profile.location}
-      </p>
-      <h1 className="display mb-6 max-w-[11ch] text-[18vw] md:text-[8.6rem]">
-        <span className="hero-line block overflow-hidden">Harshit</span>
-        <span className="hero-line block overflow-hidden italic text-[#d8ff4a]">
-          Jadiya
+      <h1
+        className="pointer-events-none relative -mb-[0.06em] font-display text-[clamp(3.25rem,11.4vw,13rem)] font-bold uppercase leading-[0.84] tracking-[-0.03em]"
+        aria-label="AI Engineer / Architect"
+      >
+        <span className="hero-l1 invisible block whitespace-nowrap" aria-hidden>
+          AI <br className="md:hidden" />
+          Engineer <span className="text-signal">/</span>
+        </span>
+        <span className="hero-l2 invisible block whitespace-nowrap pl-[6vw] mix-blend-difference md:pl-[26vw]" aria-hidden>
+          Architect
         </span>
       </h1>
-      <div className="hero-line flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-        <p className="max-w-lg text-lg leading-relaxed text-[#cfcab8] md:text-xl">
-          {profile.role}. {profile.tagline}
+
+      <div className="relative mt-8 grid grid-cols-2 items-end gap-x-6 gap-y-6 md:mt-10 md:grid-cols-12">
+        <p className="hero-meta col-span-2 max-w-[34ch] text-[15px] leading-[1.45] text-ink md:col-span-4 md:text-base">
+          {profile.tagline}
         </p>
-        <div className="flex gap-8 text-sm text-[#9a9588]">
-          <div>
-            <p className="mono text-[10px] tracking-[0.2em] uppercase">Now</p>
-            <p className="mt-1 text-[#f4f1ea]">Building AI-native products</p>
-          </div>
-          <div>
-            <p className="mono text-[10px] tracking-[0.2em] uppercase">Look</p>
-            <p className="mt-1 text-[#f4f1ea]">Move the cursor — I follow</p>
-          </div>
+        <dl className="hero-meta col-span-1 font-mono text-[11px] uppercase leading-[1.7] tracking-[0.12em] text-ink-dim md:col-span-3 md:col-start-6">
+          <dt className="sr-only">Based in</dt>
+          <dd>{profile.school}</dd>
+          <dt className="sr-only">Local time</dt>
+          <dd className="tabular text-ink">
+            Nagpur {time} IST
+          </dd>
+        </dl>
+        <div className="hero-meta col-span-1 flex justify-end md:col-span-4 md:col-start-9">
+          <MagneticButton
+            onClick={() => lenis?.scrollTo("#about", { duration: 1.6, easing: expoOut })}
+            className="group grid size-28 place-items-center rounded-full bg-signal font-display text-sm font-semibold uppercase tracking-[0.02em] text-bg transition-[box-shadow] duration-500 ease-[var(--ease-expo)] hover:shadow-[0_18px_50px_-12px_oklch(0.88_0.19_125/0.55)] md:size-36 md:text-base"
+          >
+            Initialize
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden className="transition-transform duration-500 ease-[var(--ease-expo)] group-hover:translate-y-0.5">
+              <path d="M7 1v12M1.5 7.5 7 13l5.5-5.5" stroke="currentColor" strokeWidth="1.6" />
+            </svg>
+          </MagneticButton>
         </div>
       </div>
     </section>

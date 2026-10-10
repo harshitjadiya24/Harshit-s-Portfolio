@@ -1,100 +1,36 @@
-import { useGSAP } from "@gsap/react"
-import gsap from "gsap"
-import { ScrollTrigger } from "gsap/ScrollTrigger"
-import { useRef } from "react"
 import { projects } from "../data"
-import { useFace } from "../face/FaceContext"
 
-gsap.registerPlugin(ScrollTrigger)
-
+/**
+ * Full-bleed project rows. Phase 3 adds the WebGL displacement reveal
+ * (thumbnail → video) that follows the cursor across each row.
+ */
 export function Work() {
-  const root = useRef<HTMLElement>(null)
-  const { setExpression } = useFace()
-
-  useGSAP(
-    () => {
-      gsap.from(".work-head", {
-        scrollTrigger: { trigger: root.current, start: "top 75%" },
-        y: 40,
-        opacity: 0,
-        duration: 0.9,
-      })
-      gsap.utils.toArray<HTMLElement>(".project-card").forEach((card, i) => {
-        gsap.from(card, {
-          scrollTrigger: { trigger: card, start: "top 88%" },
-          y: 60,
-          opacity: 0,
-          duration: 0.85,
-          delay: i * 0.04,
-          ease: "power3.out",
-        })
-      })
-    },
-    { scope: root },
-  )
-
   return (
-    <section
-      id="work"
-      ref={root}
-      className="relative z-10 px-5 py-24 md:px-10"
-      onMouseEnter={() => setExpression("wow")}
-    >
-      <div className="work-head mb-14 flex items-end justify-between gap-6">
-        <h2 className="display text-6xl md:text-8xl">
-          Selected <span className="italic text-[#6ee7ff]">work</span>
-        </h2>
-        <p className="hidden max-w-xs text-sm text-[#9a9588] md:block">
-          Real builds from the lab — vision, agents, and interfaces that react.
-        </p>
-      </div>
-      <div className="grid gap-4">
-        {projects.map((p) => (
-          <article
-            key={p.title}
-            className="project-card glass group grid gap-6 rounded-[28px] p-6 md:grid-cols-[80px_1.3fr_1fr_auto] md:items-center md:p-8"
-            onMouseMove={(e) => {
-              const r = e.currentTarget.getBoundingClientRect()
-              const rx = ((e.clientY - r.top) / r.height - 0.5) * -6
-              const ry = ((e.clientX - r.left) / r.width - 0.5) * 8
-              e.currentTarget.style.transform = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg)`
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform =
-                "perspective(900px) rotateX(0) rotateY(0)"
-            }}
-          >
-            <p className="display text-3xl" style={{ color: p.accent }}>
-              {p.index}
-            </p>
-            <div>
-              <div className="flex flex-wrap items-baseline gap-3">
-                <h3 className="text-2xl md:text-3xl">{p.title}</h3>
-                <span className="mono text-[11px] text-[#9a9588]">{p.year}</span>
-              </div>
-              <p className="mt-2 max-w-xl text-sm leading-relaxed text-[#cfcab8]">
-                {p.description}
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {p.tags.map((t) => (
-                <span
-                  key={t}
-                  className="rounded-full border border-white/10 px-3 py-1 text-[11px] tracking-wide text-[#cfcab8]"
-                >
-                  {t}
-                </span>
-              ))}
-            </div>
-            <span
-              className="hidden h-12 w-12 place-items-center rounded-full border border-white/15 text-lg transition group-hover:bg-[#d8ff4a] group-hover:text-[#111] md:grid"
-              aria-hidden
+    <section id="work" className="relative py-[14vh]">
+      <h2 className="px-4 font-display text-[clamp(2.5rem,8vw,8rem)] font-bold uppercase leading-[0.86] tracking-[-0.03em] md:px-10">
+        Work
+      </h2>
+      <ol className="mt-12 border-t border-line">
+        {projects.map((p, i) => (
+          <li key={p.title} className="group border-b border-line" data-cursor="hover">
+            <div
+              className={`grid grid-cols-12 items-baseline gap-x-4 px-4 py-7 transition-colors duration-500 ease-[var(--ease-expo)] group-hover:bg-bg-2 md:gap-x-6 md:px-10 md:py-10 ${
+                i % 2 ? "md:[&>h3]:col-start-4" : ""
+              }`}
             >
-              →
-            </span>
-          </article>
+              <h3 className="col-span-12 font-display text-[clamp(2.25rem,7.5vw,8.5rem)] font-semibold uppercase leading-[0.9] tracking-[-0.03em] transition-[color,transform] duration-700 ease-[var(--ease-expo)] group-hover:translate-x-[1.5vw] group-hover:text-signal md:col-span-8">
+                {p.title}
+              </h3>
+              <div className="col-span-12 mt-4 md:col-span-3 md:col-start-10 md:row-start-1 md:mt-0 md:self-end">
+                <p className="text-[15px] leading-[1.5] text-ink-dim">{p.description}</p>
+                <p className="mt-3 font-mono text-[11px] uppercase tracking-[0.12em] text-ink-dim">
+                  {p.year} — {p.tags.join(" · ")}
+                </p>
+              </div>
+            </div>
+          </li>
         ))}
-      </div>
+      </ol>
     </section>
   )
 }

@@ -10,6 +10,10 @@ export const profile = {
     "I build intelligent systems that look expensive, feel human, and ship.",
 }
 
+/** Scrub-filled statement. Wrap a word in *asterisks* to make it fill to signal. */
+export const philosophy =
+  "Accuracy without *taste* is a spreadsheet. I build models that move pixels, products, and people — and I obsess over the 200ms that make an interface feel *alive.*"
+
 export const projects = [
   {
     index: "01",

@@ -1,33 +1,47 @@
 import { useGSAP } from "@gsap/react"
-import gsap from "gsap"
-import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { useRef } from "react"
-import { story } from "../data"
-import { useFace } from "../face/FaceContext"
+import { philosophy, story } from "../data"
+import { gsap, reducedMotion } from "../motion/eases"
 
-gsap.registerPlugin(ScrollTrigger)
-
-const cardAccents = ["#d8ff4a", "#c77dff", "#6ee7ff"]
+/** `*word*` in the statement marks a keyword that fills to signal instead of ink. */
+function words(text: string) {
+  return text.split(" ").map((w, i) => {
+    const kw = w.startsWith("*")
+    const clean = w.replace(/\*/g, "")
+    return (
+      <span key={i} className="fill-word" data-kw={kw || undefined}>
+        {clean}{" "}
+      </span>
+    )
+  })
+}
 
 export function Philosophy() {
   const root = useRef<HTMLElement>(null)
-  const { setExpression } = useFace()
 
   useGSAP(
     () => {
-      gsap.from(".phil-card", {
-        scrollTrigger: { trigger: root.current, start: "top 70%" },
-        y: 80,
-        opacity: 0,
-        stagger: 0.14,
-        duration: 1,
-        ease: "power3.out",
+      if (reducedMotion()) return
+      gsap.to(".fill-word", {
+        "--fill": 1,
+        ease: "none",
+        stagger: 0.12,
+        scrollTrigger: {
+          trigger: ".phil-statement",
+          start: "top 78%",
+          end: "bottom 45%",
+          scrub: 0.6,
+        },
       })
-      gsap.from(".phil-head", {
-        scrollTrigger: { trigger: root.current, start: "top 75%" },
-        y: 40,
-        opacity: 0,
-        duration: 0.9,
+      gsap.utils.toArray<HTMLElement>(".phil-note").forEach((el) => {
+        gsap.from(el, {
+          opacity: 0,
+          y: 40,
+          filter: "blur(10px)",
+          duration: 1.3,
+          ease: "expo",
+          scrollTrigger: { trigger: el, start: "top 88%" },
+        })
       })
     },
     { scope: root },
@@ -35,83 +49,34 @@ export function Philosophy() {
 
   return (
     <section
-      id="philosophy"
+      id="about"
       ref={root}
-      className="relative z-10 overflow-hidden py-28"
-      onMouseEnter={() => setExpression("think")}
+      className="relative grid grid-cols-12 gap-x-4 px-4 pt-[22vh] pb-[18vh] md:gap-x-6 md:px-10 md:pt-[30vh]"
     >
-      {/* Background glow */}
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(600px 400px at 50% 40%, rgba(199,125,255,0.07), transparent 60%)",
-        }}
-      />
+      <h2 className="sr-only">Philosophy</h2>
+      <p className="phil-statement col-span-12 font-display text-[clamp(2.1rem,5.6vw,6rem)] font-semibold leading-[1.02] tracking-[-0.03em] text-balance md:col-span-11 md:col-start-2">
+        {words(philosophy)}
+      </p>
 
-      <div className="relative px-5 md:px-10">
-        <div className="phil-head mb-16 text-center">
-          <p className="mono text-[11px] tracking-[0.28em] text-[#9a9588] uppercase">
-            Philosophy
-          </p>
-          <h2 className="display mx-auto mt-4 max-w-[20ch] text-5xl md:text-7xl">
-            How I{" "}
-            <span className="italic text-[#e7cba0]">think</span> about
-            building.
-          </h2>
-        </div>
-
-        <div className="grid gap-6 md:grid-cols-3">
-          {story.map((s, i) => {
-            const accent = cardAccents[i % cardAccents.length]
-            return (
-              <article
-                key={s.k}
-                className="phil-card group relative overflow-hidden rounded-[28px] border border-white/8 p-8 transition-all duration-500 hover:border-white/15"
-                style={{
-                  background: `linear-gradient(160deg, ${accent}06 0%, transparent 50%)`,
-                }}
-                onMouseMove={(e) => {
-                  const r = e.currentTarget.getBoundingClientRect()
-                  const rx = ((e.clientY - r.top) / r.height - 0.5) * -4
-                  const ry = ((e.clientX - r.left) / r.width - 0.5) * 6
-                  e.currentTarget.style.transform = `perspective(800px) rotateX(${rx}deg) rotateY(${ry}deg)`
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform =
-                    "perspective(800px) rotateX(0) rotateY(0)"
-                }}
-              >
-                {/* Number accent */}
-                <span
-                  className="display absolute -right-3 -top-6 text-[8rem] leading-none select-none"
-                  style={{ color: `${accent}08` }}
-                >
-                  {s.k}
-                </span>
-
-                <div className="relative">
-                  <span
-                    className="display text-5xl"
-                    style={{ color: accent }}
-                  >
-                    {s.k}
-                  </span>
-                  <h3 className="mt-5 text-2xl md:text-3xl">{s.t}</h3>
-                  <p className="mt-4 text-sm leading-relaxed text-[#cfcab8]">
-                    {s.d}
-                  </p>
-
-                  {/* Bottom accent line */}
-                  <div
-                    className="mt-6 h-[2px] w-12 rounded-full transition-all duration-500 group-hover:w-20"
-                    style={{ background: accent }}
-                  />
-                </div>
-              </article>
-            )
-          })}
-        </div>
+      <div className="col-span-12 mt-[14vh] grid grid-cols-12 gap-x-4 gap-y-14 md:gap-x-6">
+        {/* The third story beat is the statement above, so only the first two appear. */}
+        {story.slice(0, 2).map((s, i) => (
+          <article
+            key={s.t}
+            className={[
+              "phil-note col-span-12 max-w-[38ch] sm:col-span-6",
+              i === 0 && "md:col-span-4 md:col-start-2",
+              i === 1 && "md:col-span-4 md:col-start-8 md:mt-[18vh]",
+            ]
+              .filter(Boolean)
+              .join(" ")}
+          >
+            <h3 className="font-display text-2xl font-semibold tracking-[-0.02em] text-ink md:text-[1.75rem]">
+              {s.t}
+            </h3>
+            <p className="mt-3 text-[15px] leading-[1.55] text-ink-dim md:text-base">{s.d}</p>
+          </article>
+        ))}
       </div>
     </section>
   )

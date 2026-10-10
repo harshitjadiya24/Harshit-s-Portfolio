@@ -1,60 +1,72 @@
-import gsap from "gsap"
-import { ScrollTrigger } from "gsap/ScrollTrigger"
-import { ReactLenis, useLenis } from "lenis/react"
-import { lazy, Suspense, useCallback, useState } from "react"
-
-gsap.registerPlugin(ScrollTrigger)
-
-function LenisGsapBridge() {
-  useLenis(() => {
-    ScrollTrigger.update()
-  })
-  return null
-}
-import { About } from "./components/About"
-import { Contact, Footer } from "./components/Contact"
+import { ReactLenis, useLenis, type LenisRef } from "lenis/react"
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react"
+import { Contact } from "./components/Contact"
 import { Cursor } from "./components/Cursor"
-import { Experience } from "./components/Experience"
 import { Hero } from "./components/Hero"
 import { Loader } from "./components/Loader"
 import { Nav } from "./components/Nav"
 import { Philosophy } from "./components/Philosophy"
-import { Resume } from "./components/Resume"
 import { Skills } from "./components/Skills"
 import { Work } from "./components/Work"
-import { FaceProvider } from "./face/FaceContext"
+import { expoOut, gsap, reducedMotion, ScrollTrigger } from "./motion/eases"
+import { sceneState } from "./scene/sceneState"
 
-const Scene = lazy(() =>
-  import("./scene/Scene").then((m) => ({ default: m.Scene })),
-)
+const Stage = lazy(() => import("./scene/Stage").then((m) => ({ default: m.Stage })))
 
-export default function App() {
+/** Lenis runs on GSAP's ticker so ScrollTrigger and smooth scroll share one clock. */
+function useLenisOnGsapTicker(ref: React.RefObject<LenisRef | null>) {
+  useEffect(() => {
+    const update = (time: number) => ref.current?.lenis?.raf(time * 1000)
+    gsap.ticker.add(update)
+    gsap.ticker.lagSmoothing(0)
+    return () => gsap.ticker.remove(update)
+  }, [ref])
+}
+
+function ScrollSync({ locked }: { locked: boolean }) {
+  const lenis = useLenis(ScrollTrigger.update)
+  useEffect(() => {
+    if (!lenis) return
+    if (locked) lenis.stop()
+    else lenis.start()
+  }, [lenis, locked])
+  return null
+}
+
+function Shell() {
+  const lenisRef = useRef<LenisRef>(null)
   const [ready, setReady] = useState(false)
-  const done = useCallback(() => setReady(true), [])
+  useLenisOnGsapTicker(lenisRef)
+
+  const reveal = useCallback(() => {
+    setReady(true)
+    gsap.to(sceneState, { form: 1, duration: reducedMotion() ? 0.01 : 2.6, ease: "expo" })
+  }, [])
 
   return (
-    <FaceProvider>
-      <ReactLenis root>
-        <LenisGsapBridge />
-        {!ready && <Loader onDone={done} />}
-        <Cursor />
-        <div className="grain" />
-        <Suspense fallback={null}>
-          <Scene />
-        </Suspense>
-        <Nav />
-        <main className={`relative z-10 transition-opacity duration-700 ${ready ? "opacity-100" : "opacity-0"}`}>
-          <Hero />
-          <Work />
-          <Skills />
-          <Experience />
-          <Philosophy />
-          <Resume />
-          <About />
-          <Contact />
-          <Footer />
-        </main>
-      </ReactLenis>
-    </FaceProvider>
+    <ReactLenis
+      root
+      ref={lenisRef}
+      options={{ autoRaf: false, lerp: 0.09, anchors: { duration: 1.6, easing: expoOut } }}
+    >
+      <ScrollSync locked={!ready} />
+      <Loader onReveal={reveal} />
+      <Cursor />
+      <Suspense fallback={null}>
+        <Stage />
+      </Suspense>
+      <Nav />
+      <main className="relative z-10">
+        <Hero ready={ready} />
+        <Philosophy />
+        <Skills />
+        <Work />
+        <Contact />
+      </main>
+    </ReactLenis>
   )
+}
+
+export default function App() {
+  return <Shell />
 }
