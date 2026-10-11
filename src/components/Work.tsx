@@ -108,6 +108,20 @@ function Row({ p, i }: { p: Project; i: number }) {
           <p className="mt-3 font-mono text-[11px] uppercase tracking-[0.12em] text-ink-dim">
             {p.year} · {p.tags.join(" · ")}
           </p>
+          {(p.live || p.repo) && (
+            <p className="mt-4 flex gap-5 font-mono text-[12px] uppercase tracking-[0.12em]">
+              {p.live && (
+                <a href={p.live} target="_blank" rel="noreferrer" className="text-signal transition-opacity hover:opacity-70">
+                  Live ↗
+                </a>
+              )}
+              {p.repo && (
+                <a href={p.repo} target="_blank" rel="noreferrer" className="text-ink transition-colors hover:text-signal">
+                  Source ↗
+                </a>
+              )}
+            </p>
+          )}
         </div>
       </div>
 

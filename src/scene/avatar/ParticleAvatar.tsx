@@ -16,6 +16,7 @@ import { reducedMotion } from "../../motion/eases"
 import { palette, quality, sceneState } from "../sceneState"
 import type { FaceCloud } from "./cloud"
 import { fragmentShader, vertexShader } from "./shaders"
+import { freeSpot } from "./freeSpot"
 import { buildMorphTargets } from "./targets"
 
 function buildGeometry(cloud: FaceCloud) {
@@ -53,6 +54,7 @@ export function ParticleAvatar({ cloud }: { cloud: FaceCloud }) {
   const group = useRef<Group>(null)
   const points = useRef<Points<BufferGeometry, ShaderMaterial>>(null)
   const viewport = useThree((s) => s.viewport)
+  const size = useThree((s) => s.size)
   const dpr = useThree((s) => s.viewport.dpr)
   const lastMove = useRef(-10)
   const mouseLocal = useRef(new Vector3(9, 9, 0))
@@ -108,17 +110,34 @@ export function ParticleAvatar({ cloud }: { cloud: FaceCloud }) {
     // Layout comes from the scroll story; narrow screens keep the field centred.
     const wide = viewport.aspect > 1.05
     const base = wide ? viewport.height / 3.3 : Math.min(viewport.width / 2.2, viewport.height / 3.6)
-    const tx = sceneState.x * viewport.width * (wide ? 1 : 0.15)
-    const ty = (sceneState.y + (wide ? -0.01 : 0.06)) * viewport.height
-    const ease = 1 - Math.exp(-dt * 4)
+    let tx = sceneState.x * viewport.width * (wide ? 1 : 0.15)
+    let ty = (sceneState.y + (wide ? -0.01 : 0.06)) * viewport.height
+
+    // In Work the cube stays on screen, gliding into whatever space is free of text.
+    const m = sceneState.morph
+    const avoid = wide ? MathUtils.smoothstep(m, 1.55, 1.95) * (1 - MathUtils.smoothstep(m, 2.05, 2.5)) : 0
+    if (avoid > 0) {
+      const k = viewport.width / size.width
+      // Projected half-size of the spinning, tilted cube, in CSS px.
+      const radius = (1.3 * base * sceneState.scale) / k
+      const spot = freeSpot(radius, size.width, size.height)
+      tx = MathUtils.lerp(tx, (spot.x - size.width / 2) * k, avoid)
+      ty = MathUtils.lerp(ty, -(spot.y - size.height / 2) * k, avoid)
+    }
+    const ease = 1 - Math.exp(-dt * 3)
     g.position.x = MathUtils.lerp(g.position.x, tx, ease)
     g.position.y = MathUtils.lerp(g.position.y, ty, ease)
     g.scale.setScalar(base * sceneState.scale)
 
-    // Head follows the pointer a little: attention, not a puppet.
+    // Always face the camera head-on. Off-centre, a perspective camera sees
+    // the relief at an angle, which turns and squashes the face as it moves.
+    // The cursor never rotates it; it only scatters the particles it touches.
+    const cam = state.camera.position
+    const dz = cam.z - g.position.z
+    // Forward (+z) turned by these angles points back at the camera.
+    g.rotation.y = Math.atan2(cam.x - g.position.x, dz)
+    g.rotation.x = Math.atan2(g.position.y - cam.y, Math.hypot(g.position.x - cam.x, dz))
     const p = state.pointer
-    g.rotation.y = MathUtils.lerp(g.rotation.y, p.x * 0.28 + Math.sin(t * 0.3) * 0.04, ease)
-    g.rotation.x = MathUtils.lerp(g.rotation.x, -p.y * 0.14, ease)
 
     // Pointer ray → z=0 plane → avatar-local space.
     state.raycaster.setFromCamera(p, state.camera)
@@ -138,8 +157,9 @@ export function ParticleAvatar({ cloud }: { cloud: FaceCloud }) {
     u.uTime.value = t
     u.uForm.value = sceneState.form
     u.uMorph.value = sceneState.morph
-    // Narrow screens: the field sits behind full-width type, so it steps back further.
-    u.uFade.value = (wide ? 1 : 0.7 - Math.max(0, sceneState.morph - 1) * 0.25) * sceneState.fade
+    // Narrow screens have no free gutter: past the graph, the field is just texture.
+    const narrow = MathUtils.lerp(0.7, 0.15, MathUtils.clamp(sceneState.morph - 1, 0, 1))
+    u.uFade.value = (wide ? 1 : narrow) * sceneState.fade
     u.uPixelRatio.value = dpr
   })
 

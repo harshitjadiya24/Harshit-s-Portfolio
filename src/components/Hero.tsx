@@ -66,15 +66,16 @@ export function Hero({ ready }: { ready: boolean }) {
       ref={root}
       className="relative flex h-[100svh] min-h-[560px] flex-col justify-end overflow-hidden px-4 pb-6 md:px-10 md:pb-8"
     >
+      {/* Type owns the left half; the particle figure stands in the right. */}
       <h1
-        className="pointer-events-none relative -mb-[0.06em] font-display text-[clamp(3.25rem,11.4vw,13rem)] font-bold uppercase leading-[0.84] tracking-[-0.03em]"
+        className="pointer-events-none relative -mb-[0.06em] font-display text-[clamp(3.25rem,8.6vw,10rem)] font-bold uppercase leading-[0.86] tracking-[-0.03em]"
         aria-label="AI Engineer / Architect"
       >
         <span className="hero-l1 invisible block whitespace-nowrap" aria-hidden>
-          AI <br className="md:hidden" />
+          AI <br />
           Engineer <span className="text-signal">/</span>
         </span>
-        <span className="hero-l2 invisible block whitespace-nowrap pl-[6vw] mix-blend-difference md:pl-[26vw]" aria-hidden>
+        <span className="hero-l2 invisible block whitespace-nowrap" aria-hidden>
           Architect
         </span>
       </h1>

@@ -11,8 +11,8 @@ export type FaceCloud = {
   source: "photo" | "procedural"
 }
 
-/** Drop a front-facing portrait here to turn the avatar into you. */
-export const FACE_SRC = "/face.jpg"
+/** Cut-out portrait (alpha = subject). A plain JPG on a flat backdrop also works. */
+export const FACE_SRC = "/face.webp"
 
 let pending: Promise<FaceCloud> | null = null
 

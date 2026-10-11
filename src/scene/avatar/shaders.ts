@@ -112,8 +112,9 @@ void main() {
   vec3 p = mix(aScatter, target, f * (1.0 - f3));
 
   // Particles flow between shapes instead of sliding in straight lines.
+  // At rest (formed, not mid-morph) there is no drift: only the cursor moves them.
   float travel = sin(f1 * PI) + sin(f2 * PI) + sin(f3 * PI) * 0.6;
-  float loose = 0.025 + (1.0 - f) * 0.4 + travel * 0.32;
+  float loose = (1.0 - f) * 0.4 + travel * 0.32;
   p += flow(p * 0.7 + vec3(0.0, 0.0, t * 0.08)) * loose * uMotion;
 
   // Cursor repulsion in the XY plane, with a lift toward the camera.

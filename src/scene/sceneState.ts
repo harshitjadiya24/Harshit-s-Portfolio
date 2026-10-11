@@ -8,7 +8,7 @@ export const sceneState = {
   /** Scroll story: 0 face → 1 neural graph → 2 data cube → 3 back to nebula. */
   morph: 0,
   /** Horizontal anchor as a fraction of viewport width (narrow screens damp it). */
-  x: 0.2,
+  x: 0.25,
   /** Vertical anchor as a fraction of viewport height. */
   y: 0,
   /** Multiplier on the responsive base scale. */
@@ -31,7 +31,7 @@ const coarse =
 const lowCore = typeof navigator !== "undefined" && (navigator.hardwareConcurrency ?? 8) <= 4
 
 export const quality = {
-  points: coarse || lowCore ? 15_000 : 40_000,
+  points: coarse || lowCore ? 24_000 : 70_000,
   maxDpr: coarse ? 1.5 : 1.75,
 }
 

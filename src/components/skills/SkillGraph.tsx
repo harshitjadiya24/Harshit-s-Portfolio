@@ -315,7 +315,7 @@ export function SkillGraph() {
 
       {nodes.map((n) => {
         const skill = skills.find((s) => s.name === n.id)
-        const icon = skill && icons[skill.icon]
+        const icon = skill && "icon" in skill ? icons[skill.icon] : undefined
         const on = isLit(n.id)
         return (
           <div

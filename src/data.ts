@@ -1,10 +1,10 @@
 export const profile = {
   name: "Harshit Jadiya",
-  role: "AI Engineer & Product Builder",
-  school: "IIIT Nagpur · ECE",
+  role: "AI Engineer · Generative & Agentic AI",
+  school: "B.Tech ECE · IIIT Nagpur",
   location: "Nagpur, India",
-  email: "bt24eci044@iiitn.ac.in",
-  linkedin: "https://www.linkedin.com/in/harshit-jadiya-82b27127b",
+  email: "harshitjadiya91@gmail.com",
+  linkedin: "https://www.linkedin.com/in/harshit-jadiya24/",
   github: "https://github.com/harshitjadiya24",
   tagline:
     "I build intelligent systems that look expensive, feel human, and ship.",
@@ -26,11 +26,38 @@ export const projects: {
   tags: string[]
   description: string
   accent: string
+  /** Source on GitHub. */
+  repo?: string
+  /** Deployed demo. */
+  live?: string
   poster?: string
   video?: string
 }[] = [
   {
     index: "01",
+    slug: "omnidoc-rag",
+    title: "OmniDoc RAG",
+    year: "2026",
+    tags: ["RAG", "Hybrid retrieval", "Ollama", "FastAPI", "TypeScript"],
+    description:
+      "Ask your PDFs questions and check every answer. Hybrid BM25 + vector retrieval with a cross-encoder rerank, streaming answers that cite document and page, and every citation re-read and scored. No evidence, no answer: it refuses instead of guessing.",
+    accent: "#ffb547",
+    repo: "https://github.com/harshitjadiya24/OmniDoc-RAG",
+    live: "https://omnidoc-rag.vercel.app/",
+  },
+  {
+    index: "02",
+    slug: "vanrakshak-ai",
+    title: "VanRakshak AI",
+    year: "2026",
+    tags: ["Computer Vision", "FastAPI", "PostgreSQL", "Docker"],
+    description:
+      "A camera-trap monitoring pipeline for wildlife conservation, heading toward species classification and tiger re-identification. Live today: image ingestion with blur, brightness and contrast checks, perceptual-hash dedup, and an audit trail. In progress.",
+    accent: "#7dffb0",
+    repo: "https://github.com/harshitjadiya24/SherDrishtiAI2",
+  },
+  {
+    index: "03",
     slug: "moody-player",
     title: "Moody Player",
     year: "2025",
@@ -38,96 +65,81 @@ export const projects: {
     description:
       "Emotion-aware music player. The camera reads your face, classifies mood, and queues tracks that match how you actually feel.",
     accent: "#d8ff4a",
-  },
-  {
-    index: "02",
-    slug: "neural-chat",
-    title: "Neural Chat",
-    year: "2025",
-    tags: ["Realtime", "Socket.IO", "LLM UI", "Vite"],
-    description:
-      "A live AI conversation surface — streaming replies, presence, and a UI tuned for long-form thinking rather than chat bubbles that die.",
-    accent: "#6ee7ff",
-  },
-  {
-    index: "03",
-    slug: "fraud-sentinel",
-    title: "Fraud Sentinel",
-    year: "2025",
-    tags: ["ML", "Python", "Classification", "Finance"],
-    description:
-      "Credit-card fraud detection on 10k+ transactions. Feature work, model comparison, and a lens on false positives that actually matter.",
-    accent: "#c77dff",
+    repo: "https://github.com/harshitjadiya24/Moody-Player",
   },
   {
     index: "04",
-    slug: "mas-platform",
-    title: "MAS Platform",
-    year: "2025",
-    tags: ["Multi-agent", "Backend", "APIs"],
+    slug: "blog-agent",
+    title: "Blog Agent",
+    year: "2026",
+    tags: ["LangGraph", "Agents", "Ollama", "Python"],
     description:
-      "Backend for a multi-agent stack — orchestrating specialized agents instead of one giant prompt pretending to be everything.",
-    accent: "#ff6b8a",
+      "A research-and-write agent graph: a router decides what needs research, an orchestrator plans the post, parallel workers draft each section, and a reducer stitches it into one long-form article. Runs on a local model.",
+    accent: "#ff8fd8",
+    repo: "https://github.com/harshitjadiya24/Blog-Agent",
   },
   {
     index: "05",
-    slug: "hackathon-lab",
-    title: "Hackathon Lab",
-    year: "2025",
-    tags: ["Next.js", "Speed", "Product"],
+    slug: "spendly",
+    title: "Spendly",
+    year: "2026",
+    tags: ["Flask", "Python", "SQLite", "Security"],
     description:
-      "Shipped under pressure: Next.js frontend, Python backend, and a product story tight enough to demo in minutes.",
-    accent: "#e7cba0",
+      "Personal finance app with budget rollovers, loan and EMI tracking, auto-categorisation rules, recurring-payment detection, and a financial health score. Hardened with CSRF checks, rate limits, and security headers.",
+    accent: "#9aa8ff",
+    repo: "https://github.com/harshitjadiya24/Spendly",
   },
 ]
 
 /**
- * Nodes of the Skills physics graph. `icon` is a simple-icons export name
- * (see src/components/skills/icons.ts); each skill links to its group hub.
+ * Nodes of the Skills physics graph, from the LinkedIn headline and summary.
+ * `icon` is a key of src/components/skills/icons.ts; each skill links to its group hub.
  */
 export const skills = [
   { name: "Python", group: "Core", icon: "python" },
-  { name: "TypeScript", group: "Core", icon: "typescript" },
-  { name: "C / DSA", group: "Core", icon: "c" },
-  { name: "PyTorch", group: "AI", icon: "pytorch" },
-  { name: "CUDA", group: "AI", icon: "nvidia" },
+  { name: "C++ / DSA", group: "Core", icon: "cplusplus" },
+  { name: "Generative AI", group: "AI" },
+  { name: "Agentic AI", group: "AI" },
   { name: "LLMs", group: "AI", icon: "huggingface" },
-  { name: "Computer Vision", group: "AI", icon: "opencv" },
+  { name: "RAG", group: "AI" },
+  { name: "Agents", group: "AI" },
+  { name: "LangChain", group: "AI", icon: "langchain" },
+  { name: "LangGraph", group: "AI", icon: "langgraph" },
+  { name: "FastAPI", group: "Backend", icon: "fastapi" },
+  { name: "MongoDB", group: "Backend", icon: "mongodb" },
+  { name: "Docker", group: "Backend", icon: "docker" },
   { name: "React", group: "Product", icon: "react" },
-  { name: "Three.js", group: "Product", icon: "three" },
-  { name: "UI Motion", group: "Product", icon: "gsap" },
-  { name: "Node.js", group: "Systems", icon: "node" },
-  { name: "MongoDB", group: "Systems", icon: "mongodb" },
-  { name: "Socket.IO", group: "Systems", icon: "socketio" },
 ] as const
 
 export type SkillName = (typeof skills)[number]["name"]
 
 /** Cross-group edges: tools that actually get used together. */
 export const skillLinks: [SkillName, SkillName][] = [
-  ["Python", "PyTorch"],
-  ["PyTorch", "CUDA"],
-  ["PyTorch", "Computer Vision"],
-  ["TypeScript", "React"],
-  ["React", "Three.js"],
-  ["Three.js", "UI Motion"],
-  ["TypeScript", "Node.js"],
-  ["Node.js", "Socket.IO"],
-  ["Node.js", "MongoDB"],
-  ["LLMs", "Socket.IO"],
-  ["C / DSA", "CUDA"],
+  ["Python", "FastAPI"],
+  ["Python", "LangChain"],
+  ["C++ / DSA", "Python"],
+  ["Generative AI", "LLMs"],
+  ["Agentic AI", "Agents"],
+  ["LLMs", "RAG"],
+  ["LLMs", "Agents"],
+  ["LangChain", "RAG"],
+  ["LangChain", "LangGraph"],
+  ["LangGraph", "Agents"],
+  ["RAG", "FastAPI"],
+  ["FastAPI", "Docker"],
+  ["React", "FastAPI"],
 ]
 
 export const story = [
   {
     k: "01",
     t: "Signal, not noise",
-    d: "ECE at IIIT Nagpur taught me systems. AI taught me behavior. I live in the overlap — models that move pixels, products, and people.",
+    d: "Pre-final year of ECE at IIIT Nagpur. The degree is electronics; the work is software and AI. FastAPI backends, RAG, agents, and the 150+ LeetCode problems that keep the fundamentals sharp.",
   },
   {
     k: "02",
-    t: "Faces as interfaces",
-    d: "Moody Player started as a question: if software can see you, why does it still ignore how you feel? Expression is a first-class input.",
+    t: "Answers you can check",
+    d: "A model that sounds right isn't enough. OmniDoc cites every answer down to the clause, re-reads the source page to verify it, and refuses when the evidence isn't there.",
   },
   {
     k: "03",
@@ -172,8 +184,9 @@ export const experience = [
 ]
 
 export const stats = [
-  { label: "Projects Shipped", value: 5 },
-  { label: "Tech Stack", value: 12 },
+  { label: "Projects Shipped", value: projects.length },
+  { label: "Tech Stack", value: skills.length },
+  { label: "LeetCode Solved", value: 150 },
   { label: "Hackathons", value: 3 },
   { label: "Models Trained", value: 8 },
 ]

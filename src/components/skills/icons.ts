@@ -1,34 +1,26 @@
 import {
-  siC,
-  siGsap,
+  siCplusplus,
+  siDocker,
+  siFastapi,
   siHuggingface,
+  siLangchain,
+  siLanggraph,
   siMongodb,
-  siNodedotjs,
-  siNvidia,
-  siOpencv,
   siPython,
-  siPytorch,
   siReact,
-  siSocketdotio,
-  siThreedotjs,
-  siTypescript,
 } from "simple-icons"
 
-/** Named imports only, so the bundle carries 13 paths, not the whole set. */
+/** Named imports only, so the bundle carries these paths, not the whole set. */
 export const icons = {
   python: siPython,
-  typescript: siTypescript,
-  c: siC,
-  pytorch: siPytorch,
-  nvidia: siNvidia,
+  cplusplus: siCplusplus,
   huggingface: siHuggingface,
-  opencv: siOpencv,
-  react: siReact,
-  three: siThreedotjs,
-  gsap: siGsap,
-  node: siNodedotjs,
+  langchain: siLangchain,
+  langgraph: siLanggraph,
+  fastapi: siFastapi,
   mongodb: siMongodb,
-  socketio: siSocketdotio,
+  docker: siDocker,
+  react: siReact,
 }
 
 export type IconKey = keyof typeof icons

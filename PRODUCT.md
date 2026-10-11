@@ -24,7 +24,7 @@ An AI engineer who also builds expressive, high-craft interfaces. The models mov
 - Stack (existing): Vite + React 19, React Three Fiber/Three.js, GSAP (ScrollTrigger, SplitText), Lenis, Motion, Tailwind 4.
 - WebGL is a progressive enhancement. The content must still read when WebGL is unavailable and under reduced motion.
 - Resume lives at `/resume.pdf`. It is not yet in the repo; the user will add it.
-- The portrait for the particle avatar can be dropped in at `/face.jpg`. Until then a procedural head is used.
+- The particle avatar is built from `public/face.webp`, a cut-out of the user's studio portrait. If it fails to load, a procedural head is used.
 
 ## Brand Commitments
 - Name: Harshit Jadiya. Title line: "AI Engineer / Architect".
@@ -32,9 +32,11 @@ An AI engineer who also builds expressive, high-craft interfaces. The models mov
 
 ## Evidence on Hand
 Confirmed accurate by the user (all in `src/data.ts`):
-- Projects: Moody Player, Neural Chat, Fraud Sentinel, MAS Platform, Hackathon Lab, with their descriptions.
-- Stats: 5 projects shipped, 12 stack items, 3 hackathons, 8 models trained.
-- Contact: bt24eci044@iiitn.ac.in, LinkedIn, and GitHub (harshitjadiya24).
+- Projects: Moody Player, with its description. Neural Chat, Fraud Sentinel, MAS Platform and Hackathon Lab were removed from the site at the user's request (2026-10-11).
+- Projects taken from public GitHub repos (descriptions limited to what the README or code shows): OmniDoc RAG (live at omnidoc-rag.vercel.app), VanRakshak AI (repo SherDrishtiAI2; only the ingestion phase is built, so it is described as in progress), Blog Agent, and Spendly.
+- Stats: 3 hackathons, 8 models trained. Project and stack counts are computed from `data.ts`.
+- From the LinkedIn profile (2026-10-11): pre-final-year B.Tech ECE at IIIT Nagpur (started August 2024); headline Generative AI, Agentic AI, LLMs, RAG, FastAPI, Machine Learning, Docker, DSA (C++); backend in Python/FastAPI with MySQL, PostgreSQL, SQLite, MongoDB; Docker and Kubernetes; deploys on Vercel; LoRA/QLoRA fine-tuning, embeddings, vector databases; 150+ LeetCode problems solved; OmniDoc named as the key project.
+- Contact: harshitjadiya91@gmail.com (from LinkedIn; replaced the college address), linkedin.com/in/harshit-jadiya24, and GitHub (harshitjadiya24).
 
 Absent, so do not fabricate: testimonials, employers or internships, project screenshots or videos (placeholders are generated until real media is added under `public/work/`), and the resume PDF.
 

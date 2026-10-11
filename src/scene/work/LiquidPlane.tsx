@@ -81,7 +81,8 @@ void main() {
   float n = snoise(vec3(uv * asp * 2.4, t * 0.35));
   float reach = h * (length(asp) + 0.5);
   float d = distance(uv * asp, uMouse * asp) + n * 0.22;
-  float m = smoothstep(reach, reach - 0.3, d);
+  // Gated on h: at rest the noisy front would otherwise leak a few pixels.
+  float m = smoothstep(reach, reach - 0.3, d) * smoothstep(0.0, 0.08, h);
   float rim = m * (1.0 - m) * 4.0;
 
   vec2 disp = vec2(n, snoise(vec3(uv * asp * 2.4 + 9.1, t * 0.35))) * rim * 0.07 * uMotion;

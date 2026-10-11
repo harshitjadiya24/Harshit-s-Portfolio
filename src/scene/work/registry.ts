@@ -38,6 +38,9 @@ export function registerSlot(slot: MediaSlot) {
   }
 }
 
+/** Non-React read, for per-frame code. */
+export const currentSlots = () => slots
+
 export function useSlots() {
   return useSyncExternalStore(
     (l) => {
