@@ -1,5 +1,6 @@
-import { CanvasTexture, SRGBColorSpace, TextureLoader, VideoTexture, type Texture } from "three"
-import { palette } from "../sceneState"
+import { CanvasTexture, Color, SRGBColorSpace, TextureLoader, VideoTexture, type Texture } from "three"
+import type { Theme } from "../../theme"
+import { palettes } from "../sceneState"
 import type { Project } from "./registry"
 
 const W = 1600
@@ -9,7 +10,19 @@ const H = 760
  * Typographic poster for a project with no real thumbnail yet: the name set
  * huge in the accent and cropped by the frame, title and tags in ink and mono.
  */
-async function poster(p: Project): Promise<Texture> {
+/**
+ * The project accent for a theme. On paper the pale accents (mint, lime,
+ * periwinkle) darken so the poster word, contours and frame stay legible.
+ */
+export function accentFor(hex: string, theme: Theme) {
+  const c = new Color(hex)
+  if (theme === "light") c.offsetHSL(0, 0.04, -0.24)
+  return c
+}
+
+async function poster(p: Project, theme: Theme): Promise<Texture> {
+  const palette = palettes[theme]
+  const accent = `#${accentFor(p.accent, theme).getHexString()}`
   await Promise.all([
     document.fonts.load('700 400px "Clash Display"'),
     document.fonts.load('500 24px "JetBrains Mono"'),
@@ -22,8 +35,8 @@ async function poster(p: Project): Promise<Texture> {
   g.fillStyle = palette.bg
   g.fillRect(0, 0, W, H)
   const glow = g.createRadialGradient(W * 0.78, H * 0.62, 0, W * 0.78, H * 0.62, W * 0.6)
-  glow.addColorStop(0, `${p.accent}38`)
-  glow.addColorStop(1, `${p.accent}00`)
+  glow.addColorStop(0, `${accent}38`)
+  glow.addColorStop(1, `${accent}00`)
   g.fillStyle = glow
   g.fillRect(0, 0, W, H)
 
@@ -41,7 +54,7 @@ async function poster(p: Project): Promise<Texture> {
   g.font = '700 470px "Clash Display"'
   g.textBaseline = "alphabetic"
   g.textAlign = "left"
-  g.fillStyle = p.accent
+  g.fillStyle = accent
   g.fillText(p.title.split(" ")[0].toUpperCase(), 52, H + 118)
 
   g.fillStyle = palette.ink
@@ -72,7 +85,7 @@ function image(src: string) {
   )
 }
 
-export async function loadPoster(p: Project) {
+export async function loadPoster(p: Project, theme: Theme) {
   if (p.poster) {
     try {
       return await image(p.poster)
@@ -80,7 +93,7 @@ export async function loadPoster(p: Project) {
       /* fall through to the generated poster */
     }
   }
-  return poster(p)
+  return poster(p, theme)
 }
 
 /** Muted inline video; the caller plays it only while the preview is showing. */

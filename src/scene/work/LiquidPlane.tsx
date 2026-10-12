@@ -3,8 +3,9 @@ import { useEffect, useMemo, useRef } from "react"
 import { Color, Mesh, PlaneGeometry, ShaderMaterial, Vector2, type Texture } from "three"
 import { reducedMotion } from "../../motion/eases"
 import { noise } from "../avatar/shaders"
-import { palette } from "../sceneState"
-import { aspectOf, loadPoster, loadVideo } from "./media"
+import { palettes } from "../sceneState"
+import { useTheme } from "../../theme"
+import { accentFor, aspectOf, loadPoster, loadVideo } from "./media"
 import type { MediaSlot } from "./registry"
 
 const vertexShader = /* glsl */ `
@@ -61,14 +62,42 @@ vec3 preview(vec2 uv) {
   float c = f * 3.5;
   float dc = abs(fract(c + 0.5) - 0.5) / max(fwidth(c), 1e-4);
   float line = 1.0 - smoothstep(0.6, 1.6, dc);
-  vec3 col = mix(uBg, uBg + uAccent * 0.16, smoothstep(-0.7, 0.9, f));
-  col += uAccent * line * 0.85;
+  // Mixed, not added: adding light vanishes on paper; mixing reads on both themes.
+  vec3 col = mix(uBg, mix(uBg, uAccent, 0.18), smoothstep(-0.7, 0.9, f));
+  col = mix(col, uAccent, line * 0.85);
   col *= 0.92 + 0.08 * sin(uv.y * uRes.y * 1.2);
   return col;
 }
 
+// The hover state: the accent contour field, and when the project has a video,
+// a framed window playing it on top (rounded, accent hairline, offset shadow).
 vec3 sampleB(vec2 uv) {
-  return uHasVideo > 0.5 ? texture2D(uVideo, cover(uv, uVideoAspect, 0.5)).rgb : preview(uv);
+  vec3 col = preview(uv);
+  if (uHasVideo < 0.5) return col;
+
+  // Work in aspect-corrected space so the frame keeps the video's proportions.
+  vec2 asp = vec2(uAspect, 1.0);
+  float h = min(0.62, 0.86 * uAspect / uVideoAspect);
+  vec2 half_ = vec2(h * uVideoAspect, h) * 0.5 * mix(0.94, 1.0, uHover);
+  vec2 center = vec2(uAspect * (uAspect > 1.8 ? 0.64 : 0.5), 0.5);
+  vec2 p = uv * asp - center;
+
+  float r = 0.03;
+  vec2 q = abs(p) - half_ + r;
+  float d = length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - r;
+  float px = fwidth(d);
+
+  // Soft shadow, dropped down and slightly right.
+  vec2 qs = abs(p - vec2(0.012, -0.03)) - half_ + r;
+  float ds = length(max(qs, 0.0)) + min(max(qs.x, qs.y), 0.0) - r;
+  col *= 1.0 - 0.6 * (1.0 - smoothstep(0.0, 0.09, ds));
+
+  vec2 vuv = (p + half_) / (2.0 * half_);
+  vec3 v = texture2D(uVideo, vuv).rgb;
+  col = mix(col, v, 1.0 - smoothstep(-px, px, d));
+
+  float line = 1.0 - smoothstep(0.0, px * 1.5, abs(d) - px * 0.6);
+  return mix(col, uAccent, line * 0.9);
 }
 
 void main() {
@@ -102,7 +131,7 @@ void main() {
   );
   vec3 b = sampleB(uv - disp * 0.6);
   vec3 col = mix(a, b, m);
-  col += uAccent * rim * 0.35;
+  col = mix(col, uAccent, rim * 0.35);
 
   // Scroll reveal: a noise-edged wipe rising from the bottom.
   float rv = uReveal * 1.25;
@@ -125,6 +154,7 @@ export function LiquidPlane({ slot }: { slot: MediaSlot }) {
   const size = useThree((s) => s.size)
   const viewport = useThree((s) => s.viewport)
   const video = useRef<HTMLVideoElement | null>(null)
+  const theme = useTheme()
 
   const material = useMemo(
     () =>
@@ -147,20 +177,32 @@ export function LiquidPlane({ slot }: { slot: MediaSlot }) {
           uMouse: { value: new Vector2(0.5, 0.5) },
           uRes: { value: new Vector2(1, 1) },
           uAccent: { value: new Color(slot.project.accent) },
-          uBg: { value: new Color(palette.bg) },
+          uBg: { value: new Color(palettes.dark.bg) },
         },
       }),
     [slot],
   )
 
+  // Poster and colours follow the theme; the old poster is freed on swap.
   useEffect(() => {
     let alive = true
     const u = material.uniforms
-    loadPoster(slot.project).then((t) => {
+    u.uBg.value.set(palettes[theme].bg)
+    u.uAccent.value.copy(accentFor(slot.project.accent, theme))
+    loadPoster(slot.project, theme).then((t) => {
       if (!alive) return t.dispose()
+      const old = u.uPoster.value as Texture | null
       u.uPoster.value = t
       u.uPosterAspect.value = aspectOf(t)
+      old?.dispose()
     })
+    return () => {
+      alive = false
+    }
+  }, [slot, material, theme])
+
+  useEffect(() => {
+    const u = material.uniforms
     let vt: Texture | null = null
     if (slot.project.video) {
       const { video: v, texture } = loadVideo(slot.project.video)
@@ -173,7 +215,6 @@ export function LiquidPlane({ slot }: { slot: MediaSlot }) {
       video.current = v
     }
     return () => {
-      alive = false
       ;(u.uPoster.value as Texture | null)?.dispose()
       vt?.dispose()
       video.current?.pause()

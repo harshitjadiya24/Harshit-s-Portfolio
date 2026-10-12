@@ -50,13 +50,13 @@ export function Cursor() {
   return (
     <div className="pointer-events-none fixed inset-0 z-[100] mix-blend-difference" aria-hidden>
       <motion.div
-        className="absolute top-0 left-0 size-11 rounded-full bg-ink"
+        className="absolute top-0 left-0 size-11 rounded-full bg-paper"
         style={{ x: rx, y: ry, translateX: "-50%", translateY: "-50%" }}
         animate={{ scale: hover ? 2.6 : down ? 0.35 : 0.22 }}
         transition={{ duration: 0.55, ease: EXPO }}
       />
       <motion.div
-        className="absolute top-0 left-0 size-1.5 rounded-full bg-ink"
+        className="absolute top-0 left-0 size-1.5 rounded-full bg-paper"
         style={{ x, y, translateX: "-50%", translateY: "-50%" }}
         animate={{ opacity: hover ? 0 : 1 }}
         transition={{ duration: 0.2 }}

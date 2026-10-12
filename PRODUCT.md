@@ -36,7 +36,7 @@ Confirmed accurate by the user (all in `src/data.ts`):
 - Projects taken from public GitHub repos (descriptions limited to what the README or code shows): OmniDoc RAG (live at omnidoc-rag.vercel.app), VanRakshak AI (repo SherDrishtiAI2; only the ingestion phase is built, so it is described as in progress), Blog Agent, and Spendly.
 - Stats: 3 hackathons, 8 models trained. Project and stack counts are computed from `data.ts`.
 - From the LinkedIn profile (2026-10-11): pre-final-year B.Tech ECE at IIIT Nagpur (started August 2024); headline Generative AI, Agentic AI, LLMs, RAG, FastAPI, Machine Learning, Docker, DSA (C++); backend in Python/FastAPI with MySQL, PostgreSQL, SQLite, MongoDB; Docker and Kubernetes; deploys on Vercel; LoRA/QLoRA fine-tuning, embeddings, vector databases; 150+ LeetCode problems solved; OmniDoc named as the key project.
-- Contact: harshitjadiya91@gmail.com (from LinkedIn; replaced the college address), linkedin.com/in/harshit-jadiya24, and GitHub (harshitjadiya24).
+- Contact: harshitjadiya24@gmail.com (set by the user 2026-10-12; replaced the LinkedIn address), linkedin.com/in/harshit-jadiya24, and GitHub (harshitjadiya24).
 
 Absent, so do not fabricate: testimonials, employers or internships, project screenshots or videos (placeholders are generated until real media is added under `public/work/`), and the resume PDF.
 

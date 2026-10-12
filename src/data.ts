@@ -3,16 +3,54 @@ export const profile = {
   role: "AI Engineer · Generative & Agentic AI",
   school: "B.Tech ECE · IIIT Nagpur",
   location: "Nagpur, India",
-  email: "harshitjadiya91@gmail.com",
+  email: "harshitjadiya24@gmail.com",
   linkedin: "https://www.linkedin.com/in/harshit-jadiya24/",
   github: "https://github.com/harshitjadiya24",
+  /** Shown on the Hire Me page when set, e.g. "+91 98765 43210". Public once deployed. */
+  phone: "",
   tagline:
     "I build intelligent systems that look expensive, feel human, and ship.",
 }
 
-/** Scrub-filled statement. Wrap a word in *asterisks* to make it fill to signal. */
-export const philosophy =
-  "Accuracy without *taste* is a spreadsheet. I build models that move pixels, products, and people — and I obsess over the 200ms that make an interface feel *alive.*"
+/**
+ * Certifications section. Hidden while empty. `image` is a file in
+ * public/certificates/ (shown on hover, opened on click); `url` is a verify link.
+ */
+export const certifications: {
+  title: string
+  issuer: string
+  year: string
+  image?: string
+  url?: string
+}[] = [
+  {
+    title: "IBM RAG and Agentic AI",
+    issuer: "IBM · Coursera",
+    year: "2026",
+    image: "/certificates/ibm-rag-agentic-ai.webp",
+    url: "https://coursera.org/verify/professional-cert/KUJK91NRITKD",
+  },
+]
+
+/** About statement, scrub-filled on scroll. Wrap a word in *asterisks* to fill it with signal. */
+export const about =
+  "I'm Harshit, a pre-final-year ECE student at IIIT Nagpur. My degree is electronics; my work is where *software* *engineering* and *AI* meet."
+
+/** Three short notes under the statement. */
+export const aboutNotes = [
+  {
+    t: "Backend",
+    d: "Python and FastAPI. REST APIs on PostgreSQL, MySQL, SQLite and MongoDB, containerised with Docker and Kubernetes, shipped to production on Vercel.",
+  },
+  {
+    t: "AI",
+    d: "LLMs, RAG, embeddings and vector databases, LoRA / QLoRA fine-tuning, and agentic systems. Flagship: OmniDoc, which streams answers cited to the exact clause and checks every citation against its source.",
+  },
+  {
+    t: "Fundamentals",
+    d: "150+ LeetCode problems. Data structures, algorithms and performance, kept sharp alongside the building.",
+  },
+]
 
 /**
  * Work rows. Add `poster: "/work/<slug>.jpg"` and/or `video: "/work/<slug>.mp4"`
@@ -44,6 +82,8 @@ export const projects: {
     accent: "#ffb547",
     repo: "https://github.com/harshitjadiya24/OmniDoc-RAG",
     live: "https://omnidoc-rag.vercel.app/",
+    // The OmniDoc intro film, 960×540, framed inside the hover animation.
+    video: "/work/omnidoc-rag.mp4",
   },
   {
     index: "02",
@@ -98,6 +138,8 @@ export const projects: {
 export const skills = [
   { name: "Python", group: "Core", icon: "python" },
   { name: "C++ / DSA", group: "Core", icon: "cplusplus" },
+  { name: "Git", group: "Core", icon: "git" },
+  { name: "GitHub", group: "Core", icon: "github" },
   { name: "Generative AI", group: "AI" },
   { name: "Agentic AI", group: "AI" },
   { name: "LLMs", group: "AI", icon: "huggingface" },
@@ -109,6 +151,8 @@ export const skills = [
   { name: "MongoDB", group: "Backend", icon: "mongodb" },
   { name: "Docker", group: "Backend", icon: "docker" },
   { name: "React", group: "Product", icon: "react" },
+  { name: "JavaScript", group: "Product", icon: "javascript" },
+  { name: "Tailwind CSS", group: "Product", icon: "tailwind" },
 ] as const
 
 export type SkillName = (typeof skills)[number]["name"]
@@ -118,6 +162,7 @@ export const skillLinks: [SkillName, SkillName][] = [
   ["Python", "FastAPI"],
   ["Python", "LangChain"],
   ["C++ / DSA", "Python"],
+  ["Git", "GitHub"],
   ["Generative AI", "LLMs"],
   ["Agentic AI", "Agents"],
   ["LLMs", "RAG"],
@@ -128,24 +173,8 @@ export const skillLinks: [SkillName, SkillName][] = [
   ["RAG", "FastAPI"],
   ["FastAPI", "Docker"],
   ["React", "FastAPI"],
-]
-
-export const story = [
-  {
-    k: "01",
-    t: "Signal, not noise",
-    d: "Pre-final year of ECE at IIIT Nagpur. The degree is electronics; the work is software and AI. FastAPI backends, RAG, agents, and the 150+ LeetCode problems that keep the fundamentals sharp.",
-  },
-  {
-    k: "02",
-    t: "Answers you can check",
-    d: "A model that sounds right isn't enough. OmniDoc cites every answer down to the clause, re-reads the source page to verify it, and refuses when the evidence isn't there.",
-  },
-  {
-    k: "03",
-    t: "Craft is a model too",
-    d: "Accuracy without taste is a spreadsheet. I care about latency, typography, and the 200ms that make an interface feel alive.",
-  },
+  ["JavaScript", "React"],
+  ["Tailwind CSS", "React"],
 ]
 
 export const experience = [

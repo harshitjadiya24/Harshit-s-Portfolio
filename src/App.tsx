@@ -1,12 +1,14 @@
 import { useGSAP } from "@gsap/react"
 import { ReactLenis, useLenis, type LenisRef } from "lenis/react"
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react"
+import { About } from "./components/About"
+import { Certifications } from "./components/Certifications"
 import { Contact } from "./components/Contact"
 import { Cursor } from "./components/Cursor"
 import { Hero } from "./components/Hero"
+import { HireMe } from "./components/HireMe"
 import { Loader } from "./components/Loader"
 import { Nav } from "./components/Nav"
-import { Philosophy } from "./components/Philosophy"
 import { Skills } from "./components/Skills"
 import { Work } from "./components/Work"
 import { expoOut, gsap, reducedMotion, ScrollTrigger } from "./motion/eases"
@@ -61,11 +63,13 @@ function Shell() {
       <Nav />
       <main className="relative z-10">
         <Hero ready={ready} />
-        <Philosophy />
+        <About />
         <Skills />
         <Work />
+        <Certifications />
         <Contact />
       </main>
+      <HireMe />
     </ReactLenis>
   )
 }

@@ -95,7 +95,7 @@ export function Hero({ ready }: { ready: boolean }) {
         <div className="hero-meta col-span-1 flex justify-end md:col-span-4 md:col-start-9">
           <MagneticButton
             onClick={() => lenis?.scrollTo("#about", { duration: 1.6, easing: expoOut })}
-            className="group grid size-28 place-items-center rounded-full bg-signal font-display text-sm font-semibold uppercase tracking-[0.02em] text-bg transition-[box-shadow] duration-500 ease-[var(--ease-expo)] hover:shadow-[0_18px_50px_-12px_oklch(0.88_0.19_125/0.55)] md:size-36 md:text-base"
+            className="group grid size-28 place-items-center rounded-full bg-signal-fill font-display text-sm font-semibold uppercase tracking-[0.02em] text-on-signal transition-[box-shadow] duration-500 ease-[var(--ease-expo)] hover:shadow-[0_18px_50px_-12px_oklch(0.88_0.19_125/0.55)] md:size-36 md:text-base"
           >
             Initialize
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden className="transition-transform duration-500 ease-[var(--ease-expo)] group-hover:translate-y-0.5">

@@ -26,6 +26,17 @@ function obstacles(vh: number): Rect[] {
     const r = s.el.getBoundingClientRect()
     if (r.bottom < 0 || r.top > vh) continue
     out.push({ l: r.left, t: r.top, r: r.left + r.width * 0.55, b: r.top + r.height * 0.3 })
+    // While a project's video is showing, its framed window is off-limits too.
+    // Mirrors the frame geometry in LiquidPlane's sampleB (16:9 film).
+    if (s.project.video && s.hover.v > 0.1) {
+      const a = r.width / r.height
+      const va = 16 / 9
+      const fh = Math.min(0.62, (0.86 * a) / va) * r.height
+      const fw = fh * va
+      const cx = r.left + (a > 1.8 ? 0.64 : 0.5) * r.width
+      const cy = r.top + r.height / 2
+      out.push({ l: cx - fw / 2, t: cy - fh / 2, r: cx + fw / 2, b: cy + fh / 2 })
+    }
   }
   return out
 }

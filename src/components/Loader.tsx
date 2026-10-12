@@ -2,6 +2,7 @@ import { useGSAP } from "@gsap/react"
 import { useRef, useState } from "react"
 import { gsap, reducedMotion } from "../motion/eases"
 import { loadFaceCloud } from "../scene/avatar/cloud"
+import { getTheme } from "../theme"
 import { quality } from "../scene/sceneState"
 
 /**
@@ -22,7 +23,7 @@ export function Loader({ onReveal }: { onReveal: () => void }) {
       const crawl = gsap.to(counter, { v: 80, duration: 2.4, ease: "expo", onUpdate: render })
       let cancelled = false
 
-      Promise.all([document.fonts.ready, loadFaceCloud()]).then(() => {
+      Promise.all([document.fonts.ready, loadFaceCloud(getTheme())]).then(() => {
         if (cancelled) return
         crawl.kill()
         gsap

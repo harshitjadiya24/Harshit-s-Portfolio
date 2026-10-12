@@ -50,7 +50,15 @@ function blur(src: Float32Array, w: number, h: number, r: number, passes = 3) {
  * Depth: the head is found above the shoulder line and bulges toward the
  * camera; the body is a softer pillow set behind it.
  */
-export async function sampleFace(src: string, count: number): Promise<FaceCloud> {
+/**
+ * `light`: dots are light on a dark page, so density follows brightness.
+ * `ink`: dots are ink on a light page, so density follows darkness and the
+ * shadow side of the form, like a pencil stipple rather than a negative.
+ */
+export type Polarity = "light" | "ink"
+
+export async function sampleFace(src: string, count: number, polarity: Polarity = "light"): Promise<FaceCloud> {
+  const ink = polarity === "ink"
   const img = await loadImage(src)
   // Read at native resolution (capped): downscaling first throws away the
   // few pixels a face has in a full-length photo.
@@ -174,6 +182,9 @@ export async function sampleFace(src: string, count: number): Promise<FaceCloud>
     }
   }
 
+  // Where the jaw ends: everything below gets the body fill (neck included).
+  const chinY = hy + ry * 0.62
+
   // Stipple: dot density follows tone (light reads as light). A little edge
   // term keeps the jaw and hairline crisp; the body is thinned and the head
   // boosted so the face gets the detail.
@@ -182,8 +193,10 @@ export async function sampleFace(src: string, count: number): Promise<FaceCloud>
   for (let y = 1; y < h - 1; y++) {
     // Thin the body, and let it dissolve toward the photo's bottom edge
     // instead of ending in a hard crop line.
-    const fadeOut = Math.min(1, Math.max(0, (h - y) / (h * 0.22)))
-    const body = (y > shoulder ? 0.5 : 1) * fadeOut * fadeOut
+    // The body stays solid and readable; only the last strip above the
+    // crop edge feathers out so it doesn't end on a hard line.
+    const fadeOut = Math.min(1, Math.max(0, (h - y) / (h * 0.1)))
+    const body = fadeOut
     for (let x = 1; x < w - 1; x++) {
       const i = y * w + x
       const gx =
@@ -195,7 +208,12 @@ export async function sampleFace(src: string, count: number): Promise<FaceCloud>
       // Fill light on the face: backlit portraits leave it in shadow, so lift
       // tone inside the head (gamma < 1) without flattening its contrast.
       if (headMask[i] > 0) tone[i] = tone[i] ** (1 - 0.35 * headMask[i])
-      const wgt = fg[i] * body * boost * (0.6 + 0.5 * shade[i]) * (0.06 + 0.78 * tone[i] ** 1.7 + 0.16 * edge)
+      // From just under the chin down (neck, collar, jacket), lift the tone
+      // floor so shadowed and dark areas still fill with dots, not holes.
+      const lift = y > chinY && headMask[i] < 0.6 ? 0.42 : 0
+      const t = Math.max(lift, ink ? 1 - tone[i] : tone[i])
+      const sh = ink ? 1.45 - shade[i] : shade[i]
+      const wgt = fg[i] * body * boost * (0.6 + 0.5 * sh) * (0.06 + 0.78 * t ** 1.7 + 0.16 * edge)
       weight[i] = wgt
       if (wgt > maxW) maxW = wgt
     }
@@ -224,7 +242,10 @@ export async function sampleFace(src: string, count: number): Promise<FaceCloud>
     positions[n * 3 + 1] = ((top + h) / 2 - y) * scale
     positions[n * 3 + 2] = Math.max(headZ, bodyZ) + (lum[i] - 0.5) * 0.1
     // Dark hair and the jacket keep a floor so they read as form, not holes.
-    brightness[n] = Math.min(1, (0.14 + tone[i] * 0.86) * shade[i])
+    const t = ink ? 1 - tone[i] : tone[i]
+    const sh = ink ? 1.45 - shade[i] : shade[i]
+    const isBody = y > chinY && headMask[i] < 0.6
+    brightness[n] = Math.max(isBody ? 0.45 : 0, Math.min(1, (0.14 + t * 0.86) * sh))
     n++
   }
 
