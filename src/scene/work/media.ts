@@ -1,6 +1,5 @@
-import { CanvasTexture, Color, SRGBColorSpace, TextureLoader, VideoTexture, type Texture } from "three"
-import type { Theme } from "../../theme"
-import { palettes } from "../sceneState"
+import { CanvasTexture, SRGBColorSpace, TextureLoader, VideoTexture, type Texture } from "three"
+import { palette } from "../sceneState"
 import type { Project } from "./registry"
 
 const W = 1600
@@ -10,19 +9,8 @@ const H = 760
  * Typographic poster for a project with no real thumbnail yet: the name set
  * huge in the accent and cropped by the frame, title and tags in ink and mono.
  */
-/**
- * The project accent for a theme. On paper the pale accents (mint, lime,
- * periwinkle) darken so the poster word, contours and frame stay legible.
- */
-export function accentFor(hex: string, theme: Theme) {
-  const c = new Color(hex)
-  if (theme === "light") c.offsetHSL(0, 0.04, -0.24)
-  return c
-}
-
-async function poster(p: Project, theme: Theme): Promise<Texture> {
-  const palette = palettes[theme]
-  const accent = `#${accentFor(p.accent, theme).getHexString()}`
+async function poster(p: Project): Promise<Texture> {
+  const accent = p.accent
   await Promise.all([
     document.fonts.load('700 400px "Clash Display"'),
     document.fonts.load('500 24px "JetBrains Mono"'),
@@ -85,7 +73,7 @@ function image(src: string) {
   )
 }
 
-export async function loadPoster(p: Project, theme: Theme) {
+export async function loadPoster(p: Project) {
   if (p.poster) {
     try {
       return await image(p.poster)
@@ -93,7 +81,7 @@ export async function loadPoster(p: Project, theme: Theme) {
       /* fall through to the generated poster */
     }
   }
-  return poster(p, theme)
+  return poster(p)
 }
 
 /** Muted inline video; the caller plays it only while the preview is showing. */

@@ -3,9 +3,8 @@ import { useEffect, useMemo, useRef } from "react"
 import { Color, Mesh, PlaneGeometry, ShaderMaterial, Vector2, type Texture } from "three"
 import { reducedMotion } from "../../motion/eases"
 import { noise } from "../avatar/shaders"
-import { palettes } from "../sceneState"
-import { useTheme } from "../../theme"
-import { accentFor, aspectOf, loadPoster, loadVideo } from "./media"
+import { palette } from "../sceneState"
+import { aspectOf, loadPoster, loadVideo } from "./media"
 import type { MediaSlot } from "./registry"
 
 const vertexShader = /* glsl */ `
@@ -62,7 +61,6 @@ vec3 preview(vec2 uv) {
   float c = f * 3.5;
   float dc = abs(fract(c + 0.5) - 0.5) / max(fwidth(c), 1e-4);
   float line = 1.0 - smoothstep(0.6, 1.6, dc);
-  // Mixed, not added: adding light vanishes on paper; mixing reads on both themes.
   vec3 col = mix(uBg, mix(uBg, uAccent, 0.18), smoothstep(-0.7, 0.9, f));
   col = mix(col, uAccent, line * 0.85);
   col *= 0.92 + 0.08 * sin(uv.y * uRes.y * 1.2);
@@ -154,7 +152,6 @@ export function LiquidPlane({ slot }: { slot: MediaSlot }) {
   const size = useThree((s) => s.size)
   const viewport = useThree((s) => s.viewport)
   const video = useRef<HTMLVideoElement | null>(null)
-  const theme = useTheme()
 
   const material = useMemo(
     () =>
@@ -177,19 +174,16 @@ export function LiquidPlane({ slot }: { slot: MediaSlot }) {
           uMouse: { value: new Vector2(0.5, 0.5) },
           uRes: { value: new Vector2(1, 1) },
           uAccent: { value: new Color(slot.project.accent) },
-          uBg: { value: new Color(palettes.dark.bg) },
+          uBg: { value: new Color(palette.bg) },
         },
       }),
     [slot],
   )
 
-  // Poster and colours follow the theme; the old poster is freed on swap.
   useEffect(() => {
     let alive = true
     const u = material.uniforms
-    u.uBg.value.set(palettes[theme].bg)
-    u.uAccent.value.copy(accentFor(slot.project.accent, theme))
-    loadPoster(slot.project, theme).then((t) => {
+    loadPoster(slot.project).then((t) => {
       if (!alive) return t.dispose()
       const old = u.uPoster.value as Texture | null
       u.uPoster.value = t
@@ -199,7 +193,7 @@ export function LiquidPlane({ slot }: { slot: MediaSlot }) {
     return () => {
       alive = false
     }
-  }, [slot, material, theme])
+  }, [slot, material])
 
   useEffect(() => {
     const u = material.uniforms

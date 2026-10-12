@@ -5,17 +5,6 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#040817" />
-    <!-- Set the theme before first paint so there is no dark/light flash. Mirrors src/theme.ts. -->
-    <script>
-      (function () {
-        var t
-        try { t = localStorage.getItem("theme") } catch (e) {}
-        if (t !== "light" && t !== "dark") t = matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark"
-        document.documentElement.dataset.theme = t
-        document.documentElement.style.colorScheme = t
-        if (t === "light") document.querySelector('meta[name="theme-color"]').setAttribute("content", "#f3f6fa")
-      })()
-    </script>
     <meta
       name="description"
       content="Harshit Jadiya — AI engineer & architect. Intelligent products, expressive interfaces, and systems that feel human."

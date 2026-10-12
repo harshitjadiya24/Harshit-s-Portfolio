@@ -31,7 +31,7 @@
   --color-signal: oklch(0.88 0.19 125);
   --color-pulse: oklch(0.72 0.17 300);
   --color-line: oklch(0.96 0.012 250 / 0.12);
-  /* Lime as a fill (button, selection): bright in both themes. */
+  /* Lime as a fill (button, selection). */
   --color-signal-fill: oklch(0.88 0.19 125);
   /* Text on that fill: always navy. */
   --color-on-signal: oklch(0.14 0.035 265);
@@ -44,21 +44,6 @@
 
   --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-quint: cubic-bezier(0.83, 0, 0.17, 1);
-}
-
-/* Light: cool paper and navy ink. Lime as text deepens to stay ≥4.5:1 on paper. */
-:root[data-theme="light"] {
-  --color-bg: oklch(0.97 0.008 250);
-  --color-bg-2: oklch(0.94 0.012 250);
-  --color-deep: oklch(0.72 0.05 258);
-  --color-ink: oklch(0.2 0.04 265);
-  --color-ink-dim: oklch(0.42 0.04 260);
-  --color-ink-mute: oklch(0.55 0.05 262);
-  --color-ink-ghost: oklch(0.84 0.025 255);
-  --color-signal: oklch(0.5 0.16 135);
-  --color-line: oklch(0.2 0.04 265 / 0.12);
-  --color-glow: oklch(0.88 0.05 250 / 0.6);
-  color-scheme: light;
 }
 
 /* Metric-matched fallback keeps the giant type from shifting when Clash swaps in. */
@@ -152,8 +137,7 @@ body {
   }
 }
 
-/* Terminal: phosphor on night glass. Scanlines belong to the CRT it imitates.
-   It stays a dark screen in light mode too, so it pins the dark-theme tokens. */
+/* Terminal: phosphor on night glass. Scanlines belong to the CRT it imitates. */
 .term {
   --color-ink: oklch(0.96 0.012 250);
   --color-ink-dim: oklch(0.72 0.04 255);

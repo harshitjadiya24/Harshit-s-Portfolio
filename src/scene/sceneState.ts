@@ -17,7 +17,6 @@ export const sceneState = {
   fade: 1,
 }
 
-/** WebGL mirrors of the CSS tokens, per theme. */
 export const palette = {
   bg: "#040817",
   deep: "#314c7e",
@@ -27,16 +26,6 @@ export const palette = {
   pulse: "#b688fe",
 }
 
-export const paletteLight = {
-  bg: "#f3f6fa",
-  deep: "#a9b8cc",
-  dim: "#5d6b82",
-  ink: "#16213a",
-  signal: "#4f7d14",
-  pulse: "#7b4fd6",
-}
-
-export const palettes = { dark: palette, light: paletteLight }
 
 const coarse =
   typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches

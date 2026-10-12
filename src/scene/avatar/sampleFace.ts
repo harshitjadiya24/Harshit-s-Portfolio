@@ -50,15 +50,7 @@ function blur(src: Float32Array, w: number, h: number, r: number, passes = 3) {
  * Depth: the head is found above the shoulder line and bulges toward the
  * camera; the body is a softer pillow set behind it.
  */
-/**
- * `light`: dots are light on a dark page, so density follows brightness.
- * `ink`: dots are ink on a light page, so density follows darkness and the
- * shadow side of the form, like a pencil stipple rather than a negative.
- */
-export type Polarity = "light" | "ink"
-
-export async function sampleFace(src: string, count: number, polarity: Polarity = "light"): Promise<FaceCloud> {
-  const ink = polarity === "ink"
+export async function sampleFace(src: string, count: number): Promise<FaceCloud> {
   const img = await loadImage(src)
   // Read at native resolution (capped): downscaling first throws away the
   // few pixels a face has in a full-length photo.
@@ -211,8 +203,8 @@ export async function sampleFace(src: string, count: number, polarity: Polarity 
       // From just under the chin down (neck, collar, jacket), lift the tone
       // floor so shadowed and dark areas still fill with dots, not holes.
       const lift = y > chinY && headMask[i] < 0.6 ? 0.42 : 0
-      const t = Math.max(lift, ink ? 1 - tone[i] : tone[i])
-      const sh = ink ? 1.45 - shade[i] : shade[i]
+      const t = Math.max(lift, tone[i])
+      const sh = shade[i]
       const wgt = fg[i] * body * boost * (0.6 + 0.5 * sh) * (0.06 + 0.78 * t ** 1.7 + 0.16 * edge)
       weight[i] = wgt
       if (wgt > maxW) maxW = wgt
@@ -242,8 +234,8 @@ export async function sampleFace(src: string, count: number, polarity: Polarity 
     positions[n * 3 + 1] = ((top + h) / 2 - y) * scale
     positions[n * 3 + 2] = Math.max(headZ, bodyZ) + (lum[i] - 0.5) * 0.1
     // Dark hair and the jacket keep a floor so they read as form, not holes.
-    const t = ink ? 1 - tone[i] : tone[i]
-    const sh = ink ? 1.45 - shade[i] : shade[i]
+    const t = tone[i]
+    const sh = shade[i]
     const isBody = y > chinY && headMask[i] < 0.6
     brightness[n] = Math.max(isBody ? 0.45 : 0, Math.min(1, (0.14 + t * 0.86) * sh))
     n++

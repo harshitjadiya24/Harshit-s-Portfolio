@@ -1,7 +1,6 @@
 import { advance, Canvas } from "@react-three/fiber"
 import { Suspense, use, useEffect } from "react"
 import { gsap } from "../motion/eases"
-import { useTheme } from "../theme"
 import { loadFaceCloud } from "./avatar/cloud"
 import { ParticleAvatar } from "./avatar/ParticleAvatar"
 import { hasWebGL, quality } from "./sceneState"
@@ -9,15 +8,8 @@ import { LiquidPlane } from "./work/LiquidPlane"
 import { useSlots } from "./work/registry"
 
 function Avatar() {
-  const theme = useTheme()
-  const cloud = use(loadFaceCloud(theme))
-  // Sample the other theme's cloud while idle, so the toggle swaps instantly.
-  useEffect(() => {
-    const other = theme === "dark" ? "light" : "dark"
-    const id = window.setTimeout(() => void loadFaceCloud(other), 1500)
-    return () => window.clearTimeout(id)
-  }, [theme])
-  return <ParticleAvatar cloud={cloud} theme={theme} />
+  const cloud = use(loadFaceCloud())
+  return <ParticleAvatar cloud={cloud} />
 }
 
 function WorkGallery() {

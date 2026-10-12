@@ -1,4 +1,3 @@
-import type { Theme } from "../../theme"
 import { quality } from "../sceneState"
 import { proceduralHead } from "./proceduralHead"
 import { sampleFace } from "./sampleFace"
@@ -15,19 +14,10 @@ export type FaceCloud = {
 /** Cut-out portrait (alpha = subject). A plain JPG on a flat backdrop also works. */
 export const FACE_SRC = "/face.webp"
 
-const pending = new Map<Theme, Promise<FaceCloud>>()
+let pending: Promise<FaceCloud> | null = null
 
-/**
- * Shared by the Loader (progress) and the Stage (render), so sampling runs once
- * per theme. Light mode samples in ink: dark areas dense, for dots on paper.
- */
-export function loadFaceCloud(theme: Theme) {
-  let p = pending.get(theme)
-  if (!p) {
-    p = sampleFace(FACE_SRC, quality.points, theme === "light" ? "ink" : "light").catch(() =>
-      proceduralHead(quality.points),
-    )
-    pending.set(theme, p)
-  }
-  return p
+/** Shared by the Loader (progress) and the Stage (render), so sampling runs once. */
+export function loadFaceCloud() {
+  pending ??= sampleFace(FACE_SRC, quality.points).catch(() => proceduralHead(quality.points))
+  return pending
 }

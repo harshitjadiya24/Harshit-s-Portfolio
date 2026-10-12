@@ -7,15 +7,13 @@ import {
   Color,
   Group,
   MathUtils,
-  NormalBlending,
   Plane,
   Points,
   ShaderMaterial,
   Vector3,
 } from "three"
 import { reducedMotion } from "../../motion/eases"
-import type { Theme } from "../../theme"
-import { palettes, quality, sceneState } from "../sceneState"
+import { palette, quality, sceneState } from "../sceneState"
 import type { FaceCloud } from "./cloud"
 import { fragmentShader, vertexShader } from "./shaders"
 import { freeSpot } from "./freeSpot"
@@ -52,7 +50,7 @@ function buildGeometry(cloud: FaceCloud) {
 const plane = new Plane(new Vector3(0, 0, 1), 0)
 const hit = new Vector3()
 
-export function ParticleAvatar({ cloud, theme }: { cloud: FaceCloud; theme: Theme }) {
+export function ParticleAvatar({ cloud }: { cloud: FaceCloud }) {
   const group = useRef<Group>(null)
   const points = useRef<Points<BufferGeometry, ShaderMaterial>>(null)
   const viewport = useThree((s) => s.viewport)
@@ -83,25 +81,13 @@ export function ParticleAvatar({ cloud, theme }: { cloud: FaceCloud; theme: Them
           uMouse: { value: new Vector3(9, 9, 0) },
           uMouseStrength: { value: 0 },
           uRadius: { value: 0.62 },
-          uDeep: { value: new Color(palettes.dark.deep) },
-          uInk: { value: new Color(palettes.dark.ink) },
-          uSignal: { value: new Color(palettes.dark.signal) },
+          uDeep: { value: new Color(palette.deep) },
+          uInk: { value: new Color(palette.ink) },
+          uSignal: { value: new Color(palette.signal) },
         },
       }),
     [],
   )
-
-  // Dark: dots emit light (additive). Light: dots are ink on paper (normal blend).
-  useEffect(() => {
-    const m = points.current?.material
-    if (!m) return
-    const pal = palettes[theme]
-    m.blending = theme === "light" ? NormalBlending : AdditiveBlending
-    m.uniforms.uDeep.value.set(pal.deep)
-    m.uniforms.uInk.value.set(pal.ink)
-    m.uniforms.uSignal.value.set(pal.signal)
-    m.needsUpdate = true
-  }, [theme])
 
   useEffect(() => () => geometry.dispose(), [geometry])
   useEffect(() => () => material.dispose(), [material])
@@ -173,10 +159,7 @@ export function ParticleAvatar({ cloud, theme }: { cloud: FaceCloud; theme: Them
     u.uMorph.value = sceneState.morph
     // Narrow screens have no free gutter: past the graph, the field is just texture.
     const narrow = MathUtils.lerp(0.7, 0.15, MathUtils.clamp(sceneState.morph - 1, 0, 1))
-    // Ink on paper competes with text more than light on navy: past the
-    // portrait, light mode halves the field behind the copy.
-    const ink = theme === "light" ? MathUtils.lerp(1, 0.5, MathUtils.clamp(sceneState.morph, 0, 1)) : 1
-    u.uFade.value = (wide ? 1 : narrow) * ink * sceneState.fade
+    u.uFade.value = (wide ? 1 : narrow) * sceneState.fade
     u.uPixelRatio.value = dpr
   })
 
